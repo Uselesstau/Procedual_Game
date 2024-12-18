@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3241389362255763294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7334286155337013141}
+  - component: {fileID: 1044567428432865726}
+  m_Layer: 0
+  m_Name: SpawingStart
+  m_TagString: Original
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7334286155337013141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3241389362255763294}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1044567428432865726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3241389362255763294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c7bfa8c8bf9672439a53f9914d8570a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  empty: {fileID: 2969146261240412175, guid: c7a800593c8cb6d4c8ae22d233835588, type: 3}
+  rooms:
+  - {fileID: 6465300648458132071, guid: f43e39aa4873fe6428f90e67444f6bfa, type: 3}
+  - {fileID: 6465300648458132071, guid: cfa1ccb236c21c74fb096011a091a2e8, type: 3}
+  - {fileID: 6465300648458132071, guid: 77b3ebfee1bf7204f9228d7e34439c54, type: 3}
+  - {fileID: 6465300648458132071, guid: 217290a77f7177744a3f6ac8d71525f7, type: 3}
+  - {fileID: 6465300648458132071, guid: b554d7ad37db0cd4fbdd9dac53d1ea4e, type: 3}
+  - {fileID: 6465300648458132071, guid: db69decfc55c5034699b44e6b04404a0, type: 3}
+  - {fileID: 6465300648458132071, guid: 11e2a88130c6f6e48a8ebda03a7592c8, type: 3}
+  - {fileID: 6465300648458132071, guid: bfda177a54c479546a2ed9a03d67da90, type: 3}
+  - {fileID: 6465300648458132071, guid: 42e52f78a2f01f540b3ac09c35b8d769, type: 3}
+  - {fileID: 6465300648458132071, guid: 8e52611d23d89b14991188bf2ba2f8fd, type: 3}
+  deadEnds:
+  - {fileID: 6465300648458132071, guid: 0e8dd9926c6cea140a0bb6457deca013, type: 3}
+  - {fileID: 6465300648458132071, guid: 31417a9755aad8147a6fc35a3272057e, type: 3}
+  endFloor: {fileID: 6465300648458132071, guid: 5bfefea2d65f091419aef0493d2bdf80, type: 3}
+  numFloors: 0
+  initialRoomCount: 0
+  spawnCount: 0
+  doorways: []
+  branch: 0
+  createdRooms: []
+  order: 0
+  roomsToCheck: []
+  deadEndsToCheck: []
+  lastGridPositions: []
