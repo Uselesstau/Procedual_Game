@@ -11,6 +11,7 @@ public class gridScript : MonoBehaviour
     public List<Vector3> grid;
     public List<Vector3> usedDoors;
 	public List<GameObject> generators;
+	public int numGenerators;
 
 	public int currentFloor;
 	public int complexity;
@@ -20,7 +21,7 @@ public class gridScript : MonoBehaviour
 	public GameObject eyes;
 	public GameObject automaton;
 	public GameObject bug;
-
+	
 	private void Awake()
 	{
 		grid.Add(GameObject.Find("GridPosition").transform.position);
