@@ -22,6 +22,9 @@ public class PlayerScript : MonoBehaviour
     public int lossRateMax = 10;
     private float _currentRate;
 
+    [Header("Items")] 
+    public List<int> keyCards;
+
 	[Header("Gun")]
 	public AudioClip flashLightOn;
 	public AudioClip flashLightOff;
@@ -224,7 +227,6 @@ public class PlayerScript : MonoBehaviour
 	void Recoil()
 	{
 		float rand = Random.Range(0.5f, 1.4f);
-		Debug.Log(rand);
 		Camera.main.transform.GetComponent<PlayerCamera>().rotation.y += rand;
 		Camera.main.transform.GetComponent<PlayerCamera>().rotation.x += rand * Random.Range(-0.2f, 0.67f);
 		_recoilTime += rand;
@@ -237,6 +239,10 @@ public class PlayerScript : MonoBehaviour
 		{
 			flashLightBattery += hit.collider.GetComponent<ItemEffect>().battery;
 			totalBullets += hit.collider.GetComponent<ItemEffect>().bullets;
+			if (hit.collider.GetComponent<ItemEffect>().keyCode != 0)
+			{
+				keyCards.Add(hit.collider.GetComponent<ItemEffect>().keyCode);
+			}
 			Destroy(hit.collider.gameObject);
 		}
 	}
@@ -246,13 +252,18 @@ public class PlayerScript : MonoBehaviour
 		int layerMask = 1 << LayerMask.NameToLayer("Buttons");
 		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
 		{
-			if (hit.collider.gameObject.GetComponent<ButtonOpenDoor>() != null)
+			GameObject button = hit.collider.gameObject;
+			if (button.GetComponent<ButtonOpenDoor>() != null)
 			{
-				hit.collider.gameObject.GetComponent<ButtonOpenDoor>().OnPress();
+				button.GetComponent<ButtonOpenDoor>().OnPress();
 			}
-			if (hit.collider.gameObject.GetComponent<ButtonUseElevator>() != null)
+			if (button.GetComponent<ButtonUseElevator>() != null)
 			{
-				hit.collider.gameObject.GetComponent<ButtonUseElevator>().OnPress();
+				button.GetComponent<ButtonUseElevator>().OnPress();
+			}
+			if (button.GetComponent<KeyCard>() != null)
+			{
+				button.GetComponent<KeyCard>().CheckToOpenDoor();
 			}
 		}
 	}

@@ -70,7 +70,15 @@ public class SpawningRooms : MonoBehaviour
         //Adds List of Rooms that spawner can spawn and how many rooms must be spawned
 		roomsToCheck.AddRange(rooms);
 		deadEndsToCheck.AddRange(deadEnds);
-		spawnCount = Mathf.RoundToInt((complexity + 1) * currentFloor / 6f) + 2;
+		if (CompareTag("Original"))
+		{
+			spawnCount = Mathf.RoundToInt((complexity + 1) * currentFloor / 6f) + 2;
+		}
+		else
+		{
+			float odds = Random.Range(0, 100);
+			spawnCount = odds <= 80 ? 1 : 2;
+		}
         
 		foreach (Vector3 v in _grid.usedDoors)
 		{
@@ -142,7 +150,7 @@ public class SpawningRooms : MonoBehaviour
 			yield return null;
 		}
 		//Placeholder to test Room Generation
-		
+		/*
 		if (CompareTag("Original"))
 		{
 			while (testBool)
@@ -150,7 +158,7 @@ public class SpawningRooms : MonoBehaviour
 				yield return null;
 			}
 		}
-		
+		*/
 		yield return new WaitForSeconds(Time.deltaTime);
 		Spawnroom();
 	}
@@ -233,14 +241,14 @@ public class SpawningRooms : MonoBehaviour
 		{
 			_randomRoom = Random.Range(0, roomsToCheck.Count);
 			_room = roomsToCheck[_randomRoom];
-			GenerateRoom(_room, _randomRoom);
+			GenerateRoom(_room);
 			return;
 		}
 		if (branch)
 		{
 			_randomRoom = Random.Range(0, deadEndsToCheck.Count);
 			_room = deadEndsToCheck[_randomRoom];
-			GenerateRoom(_room, _randomRoom, true);
+			GenerateRoom(_room, true);
 			return;
 		}
         //Spawn the elevator if spawncount is 1
@@ -251,7 +259,7 @@ public class SpawningRooms : MonoBehaviour
 		}
 	}
     
-	void GenerateRoom(GameObject newRoomPrefab, int roomindex = 0, bool deadEnd = false)
+	void GenerateRoom(GameObject newRoomPrefab, bool deadEnd = false)
 	{
 		_wait = true;
 		StartCoroutine(Wait());

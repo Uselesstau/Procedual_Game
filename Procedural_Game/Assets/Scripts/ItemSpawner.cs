@@ -5,14 +5,15 @@ using UnityEngine;
 public class ItemSpawner : MonoBehaviour
 {
     public List<GameObject> items;
+    public int spawnOdds;
     void Start()
     {
         int randomItem = Random.Range(0, items.Count);
-        int spawnchance = Random.Range(0, 100);
-        if (spawnchance <= 20)
+        int spawnChance = Random.Range(0, 100);
+        if (spawnChance <= spawnOdds)
         {
-            GameObject Item = Instantiate(items[randomItem], transform.position, transform.rotation);
-            Item.transform.SetParent(transform.parent);
+            GameObject item = Instantiate(items[randomItem], transform.position, transform.rotation);
+            item.transform.SetParent(transform.parent);
         }
         Destroy(gameObject);
     }

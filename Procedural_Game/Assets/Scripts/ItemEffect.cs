@@ -9,6 +9,8 @@ public class ItemEffect : MonoBehaviour
 
     public int bullets;
     public bool isMag;
+
+    public int keyCode;
     void Start()
     {
         if (isBattery)

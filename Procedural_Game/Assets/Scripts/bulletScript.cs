@@ -25,7 +25,7 @@ public class bulletScript : MonoBehaviour
 		{
 			return;
 		}
-		if (collision.gameObject.tag == "Enemy" && isplayers)
+		if (collision.gameObject.CompareTag("Enemy") && isplayers)
 		{
 			if (collision.gameObject.GetComponent<EyesBehaviour>() != null)
 			{
@@ -42,7 +42,7 @@ public class bulletScript : MonoBehaviour
 			Destroy(gameObject);
 			return;
 		}
-		if (collision.gameObject.tag == "Player" && !isplayers)
+		if (collision.gameObject.CompareTag("Player") && !isplayers)
 		{
 			collision.gameObject.GetComponentInParent<PlayerScript>().oxygenLeft -= 2;
 			Destroy(gameObject);
@@ -50,6 +50,5 @@ public class bulletScript : MonoBehaviour
 		}
 		Instantiate(bulletMark, transform.position, Quaternion.FromToRotation(transform.up, collision.transform.forward) * transform.rotation);
 		Destroy(gameObject);
-		return;
 	}
 }

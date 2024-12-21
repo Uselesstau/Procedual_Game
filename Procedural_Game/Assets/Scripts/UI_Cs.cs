@@ -5,25 +5,19 @@ using UnityEngine;
 
 public class UI_Cs : MonoBehaviour
 {
-    public TextMeshProUGUI fps_display;
+    public TextMeshProUGUI fpsDisplay;
 
     private void Start()
     {
         StartCoroutine(Fps_update());
     }
 
-	void Update()
-    {
-        
-
-    }
-
     IEnumerator Fps_update()
     {
         while (true)
         {
-			float fps = 1 / Time.deltaTime;
-			fps_display.text = fps.ToString();
+			float fps = Mathf.Round(1 / Time.deltaTime);
+			fpsDisplay.text = fps.ToString();
 			yield return new WaitForSeconds(1);
 		}
 	}
