@@ -37,6 +37,7 @@ public class SpawningRooms : MonoBehaviour
 	public List<Vector3> lastGridPositions;
 
 	private bool _wait;
+	private int _falseAttempts;
 
 	private void Start()
 	{
@@ -95,17 +96,10 @@ public class SpawningRooms : MonoBehaviour
         //Change seed as floors are generated
 		if (CompareTag("Original"))
 		{
-			Random.InitState(_grid.seed + int.Parse(name));
+			Random.InitState(_grid.seed);
 		}
-        //Controls beginning of room generation
-		if (CompareTag("Original") && name == "1")
-		{
-			Spawnroom();
-		}
-		else
-		{
-			StartCoroutine(Suspend());
-		}
+        //Starts room generation
+        StartCoroutine(Suspend());
 	}
 	void Update()
     {
@@ -147,7 +141,7 @@ public class SpawningRooms : MonoBehaviour
 			{
 				break;
 			}
-			yield return null;
+			yield return new WaitForSeconds(Time.deltaTime);
 		}
 		//Placeholder to test Room Generation
 		/*
@@ -160,6 +154,7 @@ public class SpawningRooms : MonoBehaviour
 		}
 		*/
 		yield return new WaitForSeconds(Time.deltaTime);
+		NextRoom();
 		Spawnroom();
 	}
 
@@ -205,11 +200,19 @@ public class SpawningRooms : MonoBehaviour
 			}
 		}
 		_grid.Bake();
+		if (GameObject.FindGameObjectWithTag("Maintenance") != null)
+		{
+			List<GameObject> lights = GameObject.FindGameObjectsWithTag("RoomLight").ToList();
+			foreach (GameObject g in lights)
+			{
+				g.GetComponent<RoomLightScript>().forceOn = false;
+				g.GetComponent<Light>().enabled = false;
+			}
+		}
 	}
 
 	public void Spawnroom()
 	{
-		NextRoom();
         //Handles if no room can be generated (forces end room to spawn)
 		if (roomsToCheck.Count == 0 && !branch)
 		{
@@ -219,11 +222,17 @@ public class SpawningRooms : MonoBehaviour
 			{
 				_grid.grid.Remove(lastGridPositions[i]);
 			}
+			createdRooms.Remove(_lastRoom);
 			Destroy(_lastRoom);
-			spawnCount = 0;
-			FinishFloor();
-			GenerateRoom(endFloor);
-			return;
+			roomsToCheck.AddRange(rooms);
+			roomsToCheck.Remove(_lastRoom);
+			_falseAttempts++;
+			if (_falseAttempts == rooms.Length)
+			{
+				spawnCount = 1;
+				roomsToCheck.Clear();
+				roomsToCheck.AddRange(rooms);
+			}
 		}
         //Handles if a Branch can't create a room
 		if (roomsToCheck.Count == 0 && branch)
@@ -251,7 +260,7 @@ public class SpawningRooms : MonoBehaviour
 			GenerateRoom(_room, true);
 			return;
 		}
-        //Spawn the elevator if spawncount is 1
+        //Spawn the elevator if spawn count is 1
 		if (spawnCount == 1 && !branch && roomsToCheck.Count == rooms.Length)
 		{
 			FinishFloor();
@@ -263,9 +272,9 @@ public class SpawningRooms : MonoBehaviour
 	{
 		_wait = true;
 		StartCoroutine(Wait());
+		
 		//Generate Room
 		GameObject newRoom = Instantiate(newRoomPrefab, transform.position, transform.rotation);
-		Transform[] gridPositions = newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("GridPoint")).ToArray();
 		doorways.Clear();
 		doorways.AddRange(newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("Doorway")));
 		if (newRoomPrefab == endFloor)
@@ -274,14 +283,16 @@ public class SpawningRooms : MonoBehaviour
 			if (currentFloor != 1)
 			{
 				GameObject nextfloor = GameObject.Find("nextfloor" + (currentFloor - 1));
-				Debug.Log(nextfloor);
 				nextfloor.transform.SetParent(GameObject.Find(_grid.currentFloor - 1 + ".").transform);
 			}
 			GameObject.Find("NextFloorRoom(Clone)").name = "nextfloor" + currentFloor;
 		}
+		
 		//Place Room at the next position
 		newRoom.transform.position += transform.position - doorways[0].position;
 		newRoom.transform.eulerAngles = transform.eulerAngles;
+		Transform[] gridPositions = newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("GridPoint")).ToArray();
+		
 		//Check if any grid points intersect with an existing grid point
 		foreach (Transform t in gridPositions)
 		{
@@ -301,12 +312,13 @@ public class SpawningRooms : MonoBehaviour
 				return;
 			}
 		}
+		
         //Reset Rooms to check lists
 		roomsToCheck.Clear();
 		roomsToCheck.AddRange(rooms);
 		deadEndsToCheck.Clear();
 		deadEndsToCheck.AddRange(deadEnds);
-
+		lastGridPositions.Clear();
 		createdRooms.Add(newRoom);
 
 		_lastRoom = newRoom;
@@ -318,14 +330,16 @@ public class SpawningRooms : MonoBehaviour
 			lastGridPositions.Add(pos);
 		}
 		spawnCount--;
+		
 		//Spawn Next Room
 		if (spawnCount > 0)
 		{
+			NextRoom();
 			Spawnroom();
 		}
 
 	}
-	public void NextRoom()
+	private void NextRoom()
 	{
         //Sets Spawners position to next location
 		int t = doorways.Count;
@@ -333,18 +347,16 @@ public class SpawningRooms : MonoBehaviour
 		if (t > 0)
 		{
 			Transform door = doorways[randomDoorwayIndex];
-			Vector3 frontDoor = door.position + (door.rotation * door.forward * 2.5f);
-			foreach (Vector3 xyz in _grid.grid)
+			Vector3 frontDoor = door.position + door.right * 2.5f + new Vector3(0,3,0);
+			frontDoor = new Vector3(Mathf.RoundToInt(frontDoor.x), Mathf.RoundToInt(frontDoor.y), Mathf.RoundToInt(frontDoor.z));
+			if (_grid.grid.Contains(frontDoor))
 			{
-				if (Vector3.Distance(xyz, frontDoor) < 1)
-				{
-					NextRoom();
-					return;
-				}
-				transform.position = door.position;
-				transform.eulerAngles = door.eulerAngles + new Vector3(0, 180, 0);
-				_grid.usedDoors.Add(door.position);
+				roomsToCheck.Clear();
+				return;
 			}
+			transform.position = door.position;
+			transform.eulerAngles = door.eulerAngles + new Vector3(0, 180, 0);
+			_grid.usedDoors.Add(door.position);
 		}
 	}
 

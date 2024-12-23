@@ -4,44 +4,47 @@ using UnityEngine;
 
 public class RoomLightScript : MonoBehaviour
 {
-    [SerializeField] bool forceOn;
+    public bool forceOn;
+    public Transform player;
+    private float _maxRange;
 	void Start()
     {
+	    player = GameObject.FindGameObjectWithTag("Player").transform;
+	    _maxRange = GetComponent<Light>().range;
+	    
         GetComponent<Animator>().Update(Random.Range(0, 16f));
-        if (forceOn)
-        {
-			GetComponent<Light>().enabled = true;
-            return;
-		}
         int isOn = Random.Range(0, 4);
-        if (isOn != 0)
+        if (isOn == 0)
         {
-			Destroy(gameObject);
+	        GetComponent<Light>().enabled = true;
 		}
     }
 
 	private void Update()
 	{
-        if (forceOn)
-        {
-            return;
-        }
-        RaycastHit hit;
-		if (Physics.Raycast(transform.position, GameObject.Find("Player").transform.position - transform.position, out hit))
-        {
-			if (hit.collider.name != "PlayerObj")
-            {
-                GetComponent<Light>().enabled = false;
-			}
-            else
-            {
-				GetComponent<Light>().enabled = true;
-			}
-        }
-        float dist = Vector3.Distance(transform.position, GameObject.Find("Player").transform.position);
-        if (dist < 20)
-        {
-			GetComponent<Light>().enabled = true;
+		Light objLight = GetComponent<Light>();
+		if (forceOn)
+		{
+			objLight.enabled = true;
 		}
+
+		if (objLight.enabled)
+		{
+			GetComponent<AudioSource>().Play();
+		}
+		else
+		{
+			GetComponent<AudioSource>().Stop();
+		}
+		
+		float dist = Vector3.Distance(transform.position, player.position);
+		float rangeMultiplier = Mathf.Clamp(20.0f / dist, 0f, 1.0f);
+		
+		if (dist > 50)
+		{
+			rangeMultiplier = 0;
+		}
+
+		objLight.range = _maxRange * rangeMultiplier;
 	}
 }

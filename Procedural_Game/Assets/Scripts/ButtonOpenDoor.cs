@@ -18,9 +18,11 @@ public class ButtonOpenDoor : MonoBehaviour
         if (generateNextFloor)
         {
 			for (int i = 0; i < Grid.grid.Count - 2; i++)
-            {
-                Grid.grid.RemoveAt(i);
-            }
+			{
+				Grid.grid.RemoveAt(i);
+			}
+
+			Grid.usedDoors.Clear();
 			Instantiate(roomSpawner, orientation.transform.position, orientation.transform.rotation);
         }
 		GetComponent<Animator>().SetBool("Press", !GetComponent<Animator>().GetBool("Press"));

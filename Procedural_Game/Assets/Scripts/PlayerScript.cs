@@ -265,6 +265,10 @@ public class PlayerScript : MonoBehaviour
 			{
 				button.GetComponent<KeyCard>().CheckToOpenDoor();
 			}
+			if (button.GetComponent<MaintenanceButton>() != null)
+			{
+				button.GetComponent<MaintenanceButton>().OnPress();
+			}
 		}
 	}
 }
