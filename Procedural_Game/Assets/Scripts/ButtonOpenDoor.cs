@@ -5,6 +5,7 @@ using UnityEngine;
 public class ButtonOpenDoor : MonoBehaviour
 {
     public GameObject Door;
+    public Light elevatorLight;
     public bool generateNextFloor;
     public GameObject roomSpawner;
     public GameObject orientation;
@@ -15,6 +16,10 @@ public class ButtonOpenDoor : MonoBehaviour
 	}
 	public void OnPress()
     {
+	    if (!elevatorLight.enabled)
+	    {
+		    return;
+	    }
         if (generateNextFloor)
         {
 			for (int i = 0; i < Grid.grid.Count - 2; i++)

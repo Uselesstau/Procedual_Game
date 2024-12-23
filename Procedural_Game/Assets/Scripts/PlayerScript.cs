@@ -5,6 +5,7 @@ using Unity.AI.Navigation;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
@@ -24,6 +25,8 @@ public class PlayerScript : MonoBehaviour
 
     [Header("Items")] 
     public List<int> keyCards;
+    public GameObject flareItem;
+    public List<GameObject> inventory;
 
 	[Header("Gun")]
 	public AudioClip flashLightOn;
@@ -81,6 +84,7 @@ public class PlayerScript : MonoBehaviour
 		batteryMeter.transform.localScale = new Vector3(1, flashLightBattery / 100, 1);
 		bulletCount.text = bulletsInMag + " / " + totalBullets;
 		flashLightBattery = Mathf.Clamp(flashLightBattery,0,100);
+		oxygenLeft = Mathf.Clamp(oxygenLeft, 0, maxOxygen);
         int randomTick = Random.Range(0, lossChance);
         if (randomTick == 0 && _currentRate <= 0)
         {
@@ -119,6 +123,19 @@ public class PlayerScript : MonoBehaviour
 		Items();
 		Buttons();
 		Gun();
+		NightVision();
+	}
+
+	void NightVision()
+	{
+		if (Input.GetKeyDown(KeyCode.T))
+		{
+			GetComponent<Light>().enabled = !GetComponent<Light>().enabled;
+			ColorGrading cg = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
+			Grain grain = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
+			cg.active = !cg.active;
+			grain.active = !grain.active;
+		}
 	}
 
     void AimingAnimation()
@@ -237,13 +254,27 @@ public class PlayerScript : MonoBehaviour
 		int layerMask = 1 << LayerMask.NameToLayer("Items");
 		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
 		{
-			flashLightBattery += hit.collider.GetComponent<ItemEffect>().battery;
-			totalBullets += hit.collider.GetComponent<ItemEffect>().bullets;
-			if (hit.collider.GetComponent<ItemEffect>().keyCode != 0)
+			ItemEffect item = hit.collider.GetComponent<ItemEffect>();
+			flashLightBattery += item.battery;
+			totalBullets += item.bullets;
+			oxygenLeft += item.oxygen;
+			if (item.keyCode != 0)
 			{
-				keyCards.Add(hit.collider.GetComponent<ItemEffect>().keyCode);
+				keyCards.Add(item.keyCode);
+			}
+
+			if (item.isFlare)
+			{
+				inventory.Add(flareItem);
 			}
 			Destroy(hit.collider.gameObject);
+		}
+
+		if (Input.GetKeyDown(KeyCode.G) && inventory.Count > 0)
+		{
+			GameObject item = Instantiate(inventory[0], transform.position + Camera.main.transform.forward, Quaternion.identity);
+			item.GetComponent<Rigidbody>().velocity = Camera.main.transform.forward * 10;
+			inventory.Remove(inventory[0]);
 		}
 	}
 	void Buttons()

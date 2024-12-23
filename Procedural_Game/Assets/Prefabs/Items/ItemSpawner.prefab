@@ -48,6 +48,8 @@ MonoBehaviour:
   items:
   - {fileID: 4157995339304141494, guid: f7bad5b6f2a6108468d182e1c664c715, type: 3}
   - {fileID: 6813586649562635719, guid: c19a9269ba6c75b44aa655c776644e4c, type: 3}
+  - {fileID: 4157995339304141494, guid: 40ad97ed2651f4c48aecbef3371575b0, type: 3}
+  - {fileID: 4157995339304141494, guid: 2ee5f0f8943e94d4d9eb4c06413718db, type: 3}
   spawnOdds: 20
 --- !u!1 &9151960117268532876
 GameObject:

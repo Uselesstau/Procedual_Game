@@ -1174,6 +1174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Door: {fileID: 832851129536334151}
+  elevatorLight: {fileID: 5939656662922385168}
   generateNextFloor: 0
   roomSpawner: {fileID: 0}
   orientation: {fileID: 0}
@@ -1500,6 +1501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Door: {fileID: 832851129536334151}
+  elevatorLight: {fileID: 5939656662922385168}
   generateNextFloor: 1
   roomSpawner: {fileID: 3241389362255763294, guid: 0d18e95907e501b41865864c319a3535, type: 3}
   orientation: {fileID: 1669380005229782655}
@@ -2595,6 +2597,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ac26392942cd1f94889d2f1352f48b4b, type: 3}
+--- !u!108 &5939656662922385168 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 4051775648973689835, guid: ac26392942cd1f94889d2f1352f48b4b, type: 3}
+  m_PrefabInstance: {fileID: 7662639743815042299}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8691726004873706644 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1353363571956217967, guid: ac26392942cd1f94889d2f1352f48b4b, type: 3}

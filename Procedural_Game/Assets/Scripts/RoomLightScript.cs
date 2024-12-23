@@ -30,7 +30,10 @@ public class RoomLightScript : MonoBehaviour
 
 		if (objLight.enabled)
 		{
-			GetComponent<AudioSource>().Play();
+			if (!GetComponent<AudioSource>().isPlaying)
+			{
+				GetComponent<AudioSource>().Play();
+			}
 		}
 		else
 		{

@@ -9,6 +9,11 @@ public class ItemEffect : MonoBehaviour
 
     public int bullets;
     public bool isMag;
+    
+    public int oxygen;
+    public bool isOxygen;
+
+    public bool isFlare;
 
     public int keyCode;
     void Start()
@@ -20,6 +25,10 @@ public class ItemEffect : MonoBehaviour
         if (isMag)
         {
             bullets = Random.Range(1, 31);
+        }
+        if (isOxygen)
+        {
+            oxygen = Random.Range(5, 26);
         }
     }
 }
