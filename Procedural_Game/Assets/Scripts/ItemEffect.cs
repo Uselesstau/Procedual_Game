@@ -13,14 +13,19 @@ public class ItemEffect : MonoBehaviour
     public int oxygen;
     public bool isOxygen;
 
+    public int nVBattery;
+    public bool isNVBattery;
+
     public bool isFlare;
+
+    public bool isFlashBang;
 
     public int keyCode;
     void Start()
     {
         if (isBattery)
         {
-            battery = Random.Range(1,10f);
+            battery = Random.Range(1,11);
         }
         if (isMag)
         {
@@ -29,6 +34,10 @@ public class ItemEffect : MonoBehaviour
         if (isOxygen)
         {
             oxygen = Random.Range(5, 26);
+        }
+        if (isNVBattery)
+        {
+            nVBattery = Random.Range(10, 21);
         }
     }
 }

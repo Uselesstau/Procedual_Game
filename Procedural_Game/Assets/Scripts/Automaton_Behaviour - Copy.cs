@@ -12,6 +12,7 @@ public class Automaton_Behaviour : MonoBehaviour
 	public Animation muzzleFlash;
 	private float rof = 0.5f;
 	private float coolDown;
+	public float stunTime;
 
 	public float hp = 5;
 	private void Start()
@@ -25,13 +26,14 @@ public class Automaton_Behaviour : MonoBehaviour
 			Destroy(gameObject);
 		}
 		coolDown -= Time.deltaTime;
-		RaycastHit hit;
-		bool player_in_view = false;
-		if (Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.name == "PlayerObj")
+		if (stunTime > 0)
 		{
-			player_in_view = true;
+			stunTime -= Time.deltaTime;
+			return;
 		}
-		if (player_in_view)
+		RaycastHit hit;
+		bool playerInView = Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.name == "PlayerObj";
+		if (playerInView)
 		{
 			if (coolDown < 0)
 			{
@@ -49,7 +51,7 @@ public class Automaton_Behaviour : MonoBehaviour
 			}
 			GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
 		}
-		if (!GetComponent<NavMeshAgent>().hasPath && !player_in_view)
+		if (!GetComponent<NavMeshAgent>().hasPath && !playerInView)
 		{
 			NavMeshHit navhit;
 			if (NavMesh.SamplePosition(new Vector3(Random.Range(-100, 100), transform.position.y, Random.Range(-100, 100)), out navhit, Mathf.Infinity, NavMesh.AllAreas))

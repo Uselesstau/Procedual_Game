@@ -7,6 +7,7 @@ public class Bug_Cs : MonoBehaviour
 {
 	private GameObject player;
 	public float hp = 5;
+	public float stunTime;
 
 	private void Start()
 	{
@@ -18,13 +19,15 @@ public class Bug_Cs : MonoBehaviour
 		{
 			Destroy(gameObject);
 		}
-		RaycastHit hit;
-		bool player_in_view = false;
-		if (Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.name == "PlayerObj")
+
+		if (stunTime > 0)
 		{
-			player_in_view = true;
+			stunTime -= Time.deltaTime;
+			return;
 		}
-		if (player_in_view)
+		RaycastHit hit;
+		bool playerInView = Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.name == "PlayerObj";
+		if (playerInView)
 		{
 			transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
 			MeshRenderer[] a = GetComponentsInChildren<MeshRenderer>();
@@ -34,7 +37,7 @@ public class Bug_Cs : MonoBehaviour
 			}
 			GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
 		}
-		if (!GetComponent<NavMeshAgent>().hasPath && !player_in_view)
+		if (!GetComponent<NavMeshAgent>().hasPath && !playerInView)
 		{
 			NavMeshHit navhit;
 			if (NavMesh.SamplePosition(new Vector3(Random.Range(-100, 100), transform.position.y, Random.Range(-100, 100)), out navhit, Mathf.Infinity, NavMesh.AllAreas))

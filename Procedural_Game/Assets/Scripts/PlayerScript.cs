@@ -7,13 +7,18 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
 {
 	[Header("HUD")]
 	public GameObject canGrabIcon;
 	public GameObject batteryMeter;
+	public GameObject nightVisionMeter;
 	public TextMeshProUGUI bulletCount;
+	public float nightVisionPercent = 100.0f;
+	public GameObject flashBangEffect;
+	public float flashedTime;
 
 	[Header("Oxygen")]
 	public GameObject oxygenMeter;
@@ -26,6 +31,7 @@ public class PlayerScript : MonoBehaviour
     [Header("Items")] 
     public List<int> keyCards;
     public GameObject flareItem;
+    public GameObject flashBangItem;
     public List<GameObject> inventory;
 
 	[Header("Gun")]
@@ -82,6 +88,7 @@ public class PlayerScript : MonoBehaviour
         _currentRate -= Time.deltaTime * GetComponent<PlayerController>().Speed;
         oxygenMeter.transform.localScale = new Vector3(1, oxygenLeft / maxOxygen, 1);
 		batteryMeter.transform.localScale = new Vector3(1, flashLightBattery / 100, 1);
+		nightVisionMeter.transform.localScale = new Vector3(1, nightVisionPercent / 100, 1);
 		bulletCount.text = bulletsInMag + " / " + totalBullets;
 		flashLightBattery = Mathf.Clamp(flashLightBattery,0,100);
 		oxygenLeft = Mathf.Clamp(oxygenLeft, 0, maxOxygen);
@@ -94,6 +101,12 @@ public class PlayerScript : MonoBehaviour
 		if (oxygenLeft <= 0)
 		{
 			SceneManager.LoadScene("MainMenu");
+		}
+
+		if (flashedTime > 0)
+		{
+			flashBangEffect.GetComponent<Image>().color = new Color(1, 1, 1, flashedTime/5);
+			flashedTime -= Time.deltaTime;
 		}
 		AimingAnimation();
 		if (Input.GetKeyDown(KeyCode.F))
@@ -128,13 +141,25 @@ public class PlayerScript : MonoBehaviour
 
 	void NightVision()
 	{
-		if (Input.GetKeyDown(KeyCode.T))
+		ColorGrading cg = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
+		Grain grain = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
+		if (nightVisionPercent <= 0)
+		{
+			GetComponent<Light>().enabled = false;
+			cg.active = false;
+			grain.active = false;
+			return;
+		}
+		if (Input.GetKeyDown(KeyCode.T) && nightVisionPercent > 0)
 		{
 			GetComponent<Light>().enabled = !GetComponent<Light>().enabled;
-			ColorGrading cg = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
-			Grain grain = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
 			cg.active = !cg.active;
 			grain.active = !grain.active;
+		}
+
+		if (cg.active)
+		{
+			nightVisionPercent -= Time.deltaTime * 5f;
 		}
 	}
 
@@ -258,6 +283,7 @@ public class PlayerScript : MonoBehaviour
 			flashLightBattery += item.battery;
 			totalBullets += item.bullets;
 			oxygenLeft += item.oxygen;
+			nightVisionPercent += item.nVBattery;
 			if (item.keyCode != 0)
 			{
 				keyCards.Add(item.keyCode);
@@ -265,8 +291,21 @@ public class PlayerScript : MonoBehaviour
 
 			if (item.isFlare)
 			{
+				if (inventory.Count == 3)
+				{
+					return;
+				}
 				inventory.Add(flareItem);
 			}
+			if (item.isFlashBang && inventory.Count < 3)
+			{
+				if (inventory.Count == 3)
+				{
+					return;
+				}
+				inventory.Add(flashBangItem);
+			}
+			
 			Destroy(hit.collider.gameObject);
 		}
 
