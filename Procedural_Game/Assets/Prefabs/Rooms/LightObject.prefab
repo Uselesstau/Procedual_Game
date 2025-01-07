@@ -110,6 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forceOn: 0
+  player: {fileID: 0}
 --- !u!82 &7251212963131757582
 AudioSource:
   m_ObjectHideFlags: 0

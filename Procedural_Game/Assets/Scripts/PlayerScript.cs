@@ -19,6 +19,7 @@ public class PlayerScript : MonoBehaviour
 	public float nightVisionPercent = 100.0f;
 	public GameObject flashBangEffect;
 	public float flashedTime;
+	private Vector3 lastMousePos;
 
 	[Header("Oxygen")]
 	public GameObject oxygenMeter;
@@ -47,7 +48,6 @@ public class PlayerScript : MonoBehaviour
 	public Animator magazine;
 	public Animator Arm;
 	public bool isLight;
-    private float _isAimingCoolDown = 1;
     private bool _aiming;
 	public int totalBullets;
 	public int bulletsInMag;
@@ -56,7 +56,6 @@ public class PlayerScript : MonoBehaviour
 	private bool _canAim = true;
 	private float _reloadingTime;
 	private float _recoilTime;
-	private float _recoilAcceleration;
 	private float _camFOV = 90;
 	public float flashLightBattery = 100;
 	private readonly float _rateOfFire = 0.1f;
@@ -108,7 +107,6 @@ public class PlayerScript : MonoBehaviour
 			flashBangEffect.GetComponent<Image>().color = new Color(1, 1, 1, flashedTime/5);
 			flashedTime -= Time.deltaTime;
 		}
-		AimingAnimation();
 		if (Input.GetKeyDown(KeyCode.F))
 		{
 			isLight = !isLight;
@@ -136,6 +134,7 @@ public class PlayerScript : MonoBehaviour
 		Items();
 		Buttons();
 		Gun();
+		AimingAnimation();
 		NightVision();
 	}
 
@@ -167,31 +166,27 @@ public class PlayerScript : MonoBehaviour
     {
 		if (Input.GetMouseButton(1) && _canAim)
 		{
-			_aiming = true;
-		}
-		if (_aiming)
-		{
-			_isAimingCoolDown -= Time.deltaTime;
-			_camFOV -= Time.deltaTime * 90;
-			_canReload = false;
-		}
-		else
-		{
-			_camFOV += Time.deltaTime * 90;
-		}
-		if (!Input.GetMouseButton(1) && _isAimingCoolDown <= 0)
-		{
-			_isAimingCoolDown = 1;
-			_aiming = false;
-			_canReload = true;
-		}
-		if (_isAimingCoolDown < 1)
-		{
 			weaponAnimator.SetBool("isAiming", true);
+			if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleEndAiming"))
+			{
+				weaponAnimator.Play("RifleStartAim", 0, 1 - weaponAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+			}
+			_canReload = false;
+			_camFOV -= Time.deltaTime * 90;
 		}
 		else
 		{
 			weaponAnimator.SetBool("isAiming", false);
+			if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleStartAim"))
+			{
+				weaponAnimator.Play("RifleEndAiming", 0, 1 - weaponAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+			}
+			_camFOV += Time.deltaTime * 90;
+		}
+
+		if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleIdle"))
+		{
+			_canReload = true;
 		}
 	}
 	void Gun()
@@ -237,7 +232,6 @@ public class PlayerScript : MonoBehaviour
 			_canShoot = false;
 			_canReload = false;
 			_canAim = false;
-			_isAimingCoolDown = 1;
 			magazine.SetBool("reload", true);
 			Arm.SetBool("reload", true);
 		}
@@ -268,6 +262,14 @@ public class PlayerScript : MonoBehaviour
 	}
 	void Recoil()
 	{
+		Vector3 currentMousePos = Input.mousePosition;
+		currentMousePos.z = 1;
+		Vector3 mouseDelta = Camera.main.ScreenToWorldPoint(currentMousePos) - lastMousePos;
+		lastMousePos = Camera.main.ScreenToWorldPoint(currentMousePos);
+		if (mouseDelta.magnitude > 0.1f)
+		{
+			_recoilTime = 0;
+		}
 		float rand = Random.Range(0.5f, 1.4f);
 		Camera.main.transform.GetComponent<PlayerCamera>().rotation.y += rand;
 		Camera.main.transform.GetComponent<PlayerCamera>().rotation.x += rand * Random.Range(-0.2f, 0.67f);
