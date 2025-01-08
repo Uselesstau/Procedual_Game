@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 		Cursor.lockState = CursorLockMode.Locked;
 		
 		walkSoundCooldown -= Time.deltaTime;
-		if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0)
+		if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0 && !Crouched)
 		{
 			Speed = 0;
 		}
@@ -79,21 +79,37 @@ public class PlayerController : MonoBehaviour
 	void Crouching()
 	{
 		//Crouching
-		Ray roofCheckRay = new Ray(new Vector3(transform.position.x, transform.position.y - 0.38f, transform.position.z), Vector3.up);
-		Debug.DrawRay(new Vector3(transform.position.x, transform.position.y - 0.38f, transform.position.z), Vector3.up);
-		if (Input.GetKeyDown(KeyCode.C) && Crouched == false)
+		if (Crouched)
 		{
-			Camera.main.transform.localPosition = new Vector3(0, 0.05f, 0.191f);
-			Controller.height = 0.05f;
+			Controller.height -= 2f * Time.deltaTime;
+			Camera.main.transform.localPosition = new Vector3(0, Mathf.Clamp(Camera.main.transform.localPosition.y - 1.2f * Time.deltaTime,0.3f, 0.83f), 0);
+		}
+		else
+		{
+			if (Camera.main.transform.localPosition.y >= 0.83f + 0.25f)
+			{
+				Controller.height = 2;
+				Camera.main.transform.localPosition = new Vector3(0, 0.83f, 0);
+			}
+			if (Controller.height < 2)
+			{
+				Camera.main.transform.localPosition = new Vector3(0, Mathf.Clamp(Camera.main.transform.localPosition.y + 2f * Time.deltaTime,0.3f, 0.83f + 0.25f), 0);
+			}
+		}
+		
+		Controller.height = Mathf.Clamp(Controller.height, 1.5f, 2f);
+		
+		Ray roofCheckRay = new Ray(Camera.main.transform.position, Vector3.up);
+
+		if (Input.GetKey(KeyCode.C))
+		{
 			Speed = CrouchSpeed;
 			Crouched = true;
 		}
-		if (Input.GetKeyUp(KeyCode.C) && Crouched == true)
+		if (Input.GetKeyUp(KeyCode.C))
 		{
-			if (!Physics.Raycast(roofCheckRay, 1f))
+			if (!Physics.Raycast(roofCheckRay, 0.8f))
 			{
-				Camera.main.transform.localPosition = new Vector3(0, 0.83f, 0.191f);
-				Controller.height = 2f;
 				Speed = BaseSpeed;
 				Crouched = false;
 			}
@@ -102,10 +118,8 @@ public class PlayerController : MonoBehaviour
 				WantToStand = true;
 			}
 		}
-		if (WantToStand == true && !Physics.Raycast(roofCheckRay, 1f))
+		if (WantToStand && !Physics.Raycast(roofCheckRay, 0.8f))
 		{
-			Camera.main.transform.localPosition = new Vector3(0, 0.83f, 0.191f);
-			Controller.height = 2f;
 			Speed = BaseSpeed;
 			Crouched = false;
 			WantToStand = false;

@@ -446,7 +446,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -565,6 +565,7 @@ MonoBehaviour:
   gunShot: {fileID: 7261791024055149125, guid: c4aa171c28513ba459297d1589883415, type: 3}
   bullet: {fileID: 4463323206470545731, guid: 78403eefecea0514082cebecca4f2b68, type: 3}
   muzzleFlash: {fileID: 3947869790934438658}
+  stunTime: 0
   hp: 5
 --- !u!1 &6685465342315091953
 GameObject:

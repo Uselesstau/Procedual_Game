@@ -263,10 +263,10 @@ public class PlayerScript : MonoBehaviour
 	void Recoil()
 	{
 		Vector3 currentMousePos = Input.mousePosition;
-		currentMousePos.z = 1;
+		currentMousePos.z = 10;
 		Vector3 mouseDelta = Camera.main.ScreenToWorldPoint(currentMousePos) - lastMousePos;
 		lastMousePos = Camera.main.ScreenToWorldPoint(currentMousePos);
-		if (mouseDelta.magnitude > 0.1f)
+		if (mouseDelta.magnitude > 0.05f)
 		{
 			_recoilTime = 0;
 		}
