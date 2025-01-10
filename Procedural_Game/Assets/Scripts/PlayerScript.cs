@@ -140,6 +140,7 @@ public class PlayerScript : MonoBehaviour
 
 	void NightVision()
 	{
+		nightVisionPercent = Mathf.Clamp(nightVisionPercent, 0, 100);
 		ColorGrading cg = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
 		Grain grain = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
 		if (nightVisionPercent <= 0)

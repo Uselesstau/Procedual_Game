@@ -274,11 +274,14 @@ public class SpawningRooms : MonoBehaviour
 		StartCoroutine(Wait());
 		
 		//Generate Room
-		GameObject newRoom = Instantiate(newRoomPrefab, transform.position, transform.rotation);
+		GameObject newRoom = Instantiate(newRoomPrefab, Vector3.zero, Quaternion.identity);
 		doorways.Clear();
 		doorways.AddRange(newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("Doorway")));
+		int frontDoorway = Random.Range(0, doorways.Count);
+		//frontDoorway = 0;
 		if (newRoomPrefab == endFloor)
 		{
+			frontDoorway = 0;
 			_grid.currentFloor++;
 			if (currentFloor != 1)
 			{
@@ -289,8 +292,13 @@ public class SpawningRooms : MonoBehaviour
 		}
 		
 		//Place Room at the next position
-		newRoom.transform.position += transform.position - doorways[0].position;
-		newRoom.transform.eulerAngles = transform.eulerAngles;
+		Vector3 rotation = doorways[frontDoorway].localEulerAngles;
+		if (Mathf.Approximately(rotation.y, 180))
+		{
+			rotation.y = 0;
+		}
+		newRoom.transform.eulerAngles = transform.eulerAngles + doorways[frontDoorway].localEulerAngles;
+		newRoom.transform.position += transform.position - doorways[frontDoorway].position;
 		Transform[] gridPositions = newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("GridPoint")).ToArray();
 		
 		//Check if any grid points intersect with an existing grid point
@@ -322,7 +330,8 @@ public class SpawningRooms : MonoBehaviour
 		createdRooms.Add(newRoom);
 
 		_lastRoom = newRoom;
-		_lastDoor = doorways[0];
+		_lastDoor = doorways[frontDoorway];
+		doorways.Remove(_lastDoor);
 		foreach (Transform t in gridPositions)
 		{
 			Vector3 pos = new Vector3(Mathf.Round(t.position.x), Mathf.Round(t.position.y), Mathf.Round(t.position.z));
@@ -343,7 +352,7 @@ public class SpawningRooms : MonoBehaviour
 	{
         //Sets Spawners position to next location
 		int t = doorways.Count;
-		int randomDoorwayIndex = Random.Range(1, doorways.Count);
+		int randomDoorwayIndex = Random.Range(0, doorways.Count);
 		if (t > 0)
 		{
 			Transform door = doorways[randomDoorwayIndex];
