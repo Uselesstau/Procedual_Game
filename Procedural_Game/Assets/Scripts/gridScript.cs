@@ -31,8 +31,17 @@ public class gridScript : MonoBehaviour
 		}
 	}
 
+	public void UpdateGrid()
+	{
+		for (int i = 0; i < grid.Count; i++)
+		{
+			grid[i] = new Vector3(Mathf.RoundToInt(grid[i].x), Mathf.RoundToInt(grid[i].y), Mathf.RoundToInt(grid[i].z));
+		}
+	}
+
 	public void Bake()
 	{
+		generators.Clear();
 		GameObject navMeshGenerator = GameObject.Find("NavMesh Surface");
 		navMeshGenerator.GetComponent<NavMeshSurface>().BuildNavMesh();
 		if (GameObject.FindGameObjectsWithTag("Enemy").Count() > 0)

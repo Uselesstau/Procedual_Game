@@ -6016,8 +6016,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5376059258315582572}
   m_LocalRotation: {x: 0.0000004576755, y: 0.00000040978188, z: 0.70710653, w: 0.70710707}
-  m_LocalPosition: {x: 14.5, y: 0.022, z: 1}
-  m_LocalScale: {x: 9, y: 1, z: 12}
+  m_LocalPosition: {x: 14.499999, y: 0.022000067, z: 0}
+  m_LocalScale: {x: 9, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1788461807390507705}
@@ -9766,8 +9766,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7688859666774428214}
   m_LocalRotation: {x: -0, y: -0, z: 0.7071065, w: 0.7071072}
-  m_LocalPosition: {x: 14.5, y: 0.022, z: 7}
-  m_LocalScale: {x: 9, y: 1, z: 2}
+  m_LocalPosition: {x: 14.5, y: 0.021999821, z: 6.5000005}
+  m_LocalScale: {x: 9, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1788461807390507705}
@@ -14608,10 +14608,6 @@ PrefabInstance:
     - target: {fileID: 1044567428432865726, guid: 0d18e95907e501b41865864c319a3535, type: 3}
       propertyPath: branch
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1044567428432865726, guid: 0d18e95907e501b41865864c319a3535, type: 3}
-      propertyPath: rooms.Array.data[0]
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1044567428432865726, guid: 0d18e95907e501b41865864c319a3535, type: 3}
       propertyPath: rooms.Array.data[10]

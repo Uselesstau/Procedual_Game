@@ -10348,10 +10348,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1044567428432865726, guid: 0d18e95907e501b41865864c319a3535, type: 3}
-      propertyPath: rooms.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1044567428432865726, guid: 0d18e95907e501b41865864c319a3535, type: 3}
       propertyPath: rooms.Array.data[3]
       value: 
       objectReference: {fileID: 6465300648458132071}
