@@ -117,8 +117,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   battery: 0
   isBattery: 0
-  bullets: 0
-  isMag: 1
+  bulletsR: 0
+  isMagR: 1
+  bulletsP: 0
+  isMagP: 0
+  oxygen: 0
+  isOxygen: 0
+  nVBattery: 0
+  isNVBattery: 0
+  isFlare: 0
+  isFlashBang: 0
+  isRifle: 0
+  keyCode: 0
 --- !u!54 &1847405719557761054
 Rigidbody:
   m_ObjectHideFlags: 0

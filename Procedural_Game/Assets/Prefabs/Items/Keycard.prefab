@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 5663000424599953643}
   - component: {fileID: 4107654971013706959}
   - component: {fileID: 295568192688159593}
-  - component: {fileID: 7213551740959224202}
   - component: {fileID: 3310433556236837329}
+  - component: {fileID: 7213551740959224202}
+  - component: {fileID: -1708073943813059354}
   m_Layer: 6
   m_Name: Keycard
   m_TagString: Untagged
@@ -86,6 +87,32 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3310433556236837329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029436002761920269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505dc7f80446f9f4db0be8517ff3596f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battery: 0
+  isBattery: 0
+  bulletsR: 0
+  isMagR: 0
+  bulletsP: 0
+  isMagP: 0
+  oxygen: 0
+  isOxygen: 0
+  nVBattery: 0
+  isNVBattery: 0
+  isFlare: 0
+  isFlashBang: 0
+  isRifle: 0
+  keyCode: 0
 --- !u!65 &7213551740959224202
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -107,23 +134,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3310433556236837329
-MonoBehaviour:
+--- !u!54 &-1708073943813059354
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029436002761920269}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 505dc7f80446f9f4db0be8517ff3596f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  battery: 0
-  isBattery: 0
-  bullets: 0
-  isMag: 0
-  keyCode: 0
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1618292647269188884
 GameObject:
   m_ObjectHideFlags: 0

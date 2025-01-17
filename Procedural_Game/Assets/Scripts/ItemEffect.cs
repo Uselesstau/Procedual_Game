@@ -7,8 +7,14 @@ public class ItemEffect : MonoBehaviour
     public float battery;
     public bool isBattery;
 
-    public int bullets;
-    public bool isMag;
+    public int bulletsR;
+    public bool isMagR;
+    
+    public int bulletsP;
+    public bool isMagP;
+    
+    public int bulletsS;
+    public bool isMagS;
     
     public int oxygen;
     public bool isOxygen;
@@ -20,6 +26,10 @@ public class ItemEffect : MonoBehaviour
 
     public bool isFlashBang;
 
+    public bool isRifle;
+
+    public bool isShotgun;
+
     public int keyCode;
     void Start()
     {
@@ -27,9 +37,17 @@ public class ItemEffect : MonoBehaviour
         {
             battery = Random.Range(1,11);
         }
-        if (isMag)
+        if (isMagR)
         {
-            bullets = Random.Range(1, 31);
+            bulletsR = Random.Range(1, 11);
+        }
+        if (isMagP)
+        {
+            bulletsP = Random.Range(1, 17);
+        }
+        if (isMagS)
+        {
+            bulletsS = Random.Range(1, 5);
         }
         if (isOxygen)
         {

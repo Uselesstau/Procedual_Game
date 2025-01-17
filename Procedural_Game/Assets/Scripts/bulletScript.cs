@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class bulletScript : MonoBehaviour
 {
-	public GameObject eyes;
     public GameObject bulletMark;
     public float speed;
+    public float damage;
 
 	public bool isplayers;
 	public GameObject shooter;
 	private void Start()
 	{
-		Physics.IgnoreCollision(GetComponent<CapsuleCollider>(), shooter.GetComponent<CapsuleCollider>());
+		if (GetComponent<CapsuleCollider>() != null)
+		{
+			Physics.IgnoreCollision(GetComponent<CapsuleCollider>(), shooter.GetComponent<CapsuleCollider>());
+		}
+		if (GetComponent<SphereCollider>() != null)
+		{
+			Physics.IgnoreCollision(GetComponent<SphereCollider>(), shooter.GetComponent<CapsuleCollider>());
+		}
+		Physics.IgnoreLayerCollision(9, 9);
 	}
 
 	void Update()
@@ -29,22 +37,22 @@ public class bulletScript : MonoBehaviour
 		{
 			if (collision.gameObject.GetComponent<EyesBehaviour>() != null)
 			{
-				collision.gameObject.GetComponent<EyesBehaviour>().runAway = 10;
+				collision.gameObject.GetComponent<EyesBehaviour>().runAway = damage * 5;
 			}
 			if (collision.gameObject.GetComponent<Automaton_Behaviour>() != null)
 			{
-				collision.gameObject.GetComponent<Automaton_Behaviour>().hp -= 1;
+				collision.gameObject.GetComponent<Automaton_Behaviour>().hp -= damage;
 			}
 			if (collision.gameObject.GetComponentInParent<Bug_Cs>() != null)
 			{
-				collision.gameObject.GetComponentInParent<Bug_Cs>().hp -= 1;
+				collision.gameObject.GetComponentInParent<Bug_Cs>().hp -= damage;
 			}
 			Destroy(gameObject);
 			return;
 		}
 		if (collision.gameObject.CompareTag("Player") && !isplayers)
 		{
-			collision.gameObject.GetComponentInParent<PlayerScript>().oxygenLeft -= 2;
+			collision.gameObject.GetComponentInParent<PlayerScript>().oxygenLeft -= damage * 2;
 			Destroy(gameObject);
 			return;
 		}

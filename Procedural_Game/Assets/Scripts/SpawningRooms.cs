@@ -35,6 +35,7 @@ public class SpawningRooms : MonoBehaviour
 	public int numLastGridPoints;
 
 	private int _retries = 2;
+	private bool _spawnerMoved = true;
 
 	private void Start()
 	{
@@ -98,17 +99,16 @@ public class SpawningRooms : MonoBehaviour
 	public void FinishFloor()
 	{
         //Puts all rooms in a floor in one parent
-		GameObject endFloor = Instantiate(empty);
-		endFloor.name = currentFloor + ".";
-		createdRooms.RemoveAt(createdRooms.Count - 1);
-		foreach (GameObject g in createdRooms)
+		GameObject endCurrentFloor = Instantiate(empty);
+		endCurrentFloor.name = currentFloor + ".";
+		for (int i = 0; i < createdRooms.Count - 1; i++)
 		{
-			g.transform.SetParent(endFloor.transform);
+			createdRooms[i].transform.SetParent(endCurrentFloor.transform);
 		}
 		if (GameObject.Find("Start") != null)
 		{
-			GameObject.Find("Start").transform.SetParent(endFloor.transform);
-			GameObject.Find("Start").name = "a";
+			GameObject.Find("Start").transform.SetParent(endCurrentFloor.transform);
+			GameObject.Find("Start").name = "Starting Room";
 		}
 		if (_grid.generators.Count > 0)
 		{
@@ -149,6 +149,11 @@ public class SpawningRooms : MonoBehaviour
 
 	private void SpawnRoom()
 	{
+		//Check if spawner has moved
+		if (!_spawnerMoved)
+		{
+			return;
+		}
         //Starts the GenerateRoom function
 		if (spawnCount > 1)
 		{
@@ -171,7 +176,7 @@ public class SpawningRooms : MonoBehaviour
 	private void GenerateRoom(bool end, bool deadEnd = false)
 	{
 		//determine the seed
-		Random.InitState(_grid.seed + _grid.numGenerators);
+		Random.InitState(_grid.seed + createdRooms.Count() + _grid.currentFloor + order);
 		
 		//Generate Room
 		Vector3 initialSpawnPos = transform.position + new Vector3(0, 100f, 0);
@@ -193,6 +198,11 @@ public class SpawningRooms : MonoBehaviour
 			newRoom.transform.eulerAngles = transform.eulerAngles - doorways[frontDoorway].localEulerAngles;
 			newRoom.transform.position += transform.position - doorways[frontDoorway].position;
 			Transform[] gridPositions = newRoom.GetComponentsInChildren<Transform>().Where(t => t.CompareTag("GridPoint")).ToArray();
+			if (_grid.lastElevator != null)
+			{
+				createdRooms.Add(_grid.lastElevator);
+			}
+			_grid.lastElevator = newRoom;
 
 			room = newRoom;
 			doorIndex = frontDoorway;
@@ -200,6 +210,7 @@ public class SpawningRooms : MonoBehaviour
 			{
 				Vector3 pos = t.position;
 				_grid.grid.Add(pos);
+				_grid.elevatorGrid.Add(pos);
 				numLastGridPoints++;
 				_grid.UpdateGrid();
 			}
@@ -236,7 +247,6 @@ public class SpawningRooms : MonoBehaviour
 					if (_grid.grid.Contains(pos))
 					{
 						Destroy(newRoom);
-						doorways.Clear();
 						roomsToCheck.Remove(roomsToCheck[randIndex]);
 						flag = true;
 						break;
@@ -282,7 +292,6 @@ public class SpawningRooms : MonoBehaviour
 					if (_grid.grid.Contains(pos))
 					{
 						Destroy(newRoom);
-						doorways.Clear();
 						deadEndsToCheck.Remove(deadEndsToCheck[randIndex]);
 						flag = true;
 						break;
@@ -322,6 +331,7 @@ public class SpawningRooms : MonoBehaviour
 			{
 				spawnCount = 1;
 			}
+			_spawnerMoved = true;
 			SpawnRoom();
 			return;
 		}
@@ -363,6 +373,7 @@ public class SpawningRooms : MonoBehaviour
 	private void NextRoom()
 	{
         //Sets Spawners position to next location
+        _spawnerMoved = false;
 		int t = doorways.Count;
 		int randomDoorwayIndex = Random.Range(0, doorways.Count);
 		if (t > 0)
@@ -378,6 +389,7 @@ public class SpawningRooms : MonoBehaviour
 			}
 			transform.position = door.position;
 			transform.eulerAngles = door.eulerAngles + new Vector3(0, 180, 0);
+			_spawnerMoved = true;
 		}
 	}
 

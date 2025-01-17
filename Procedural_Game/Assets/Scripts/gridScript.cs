@@ -9,8 +9,10 @@ using UnityEngine.XR;
 public class gridScript : MonoBehaviour
 {
     public List<Vector3> grid;
+    public List<Vector3> elevatorGrid;
     public List<Vector3> usedDoors;
 	public List<GameObject> generators;
+	public GameObject lastElevator;
 	public int numGenerators;
 
 	public int currentFloor;

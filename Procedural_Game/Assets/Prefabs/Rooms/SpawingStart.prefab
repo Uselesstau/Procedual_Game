@@ -60,6 +60,9 @@ MonoBehaviour:
   - {fileID: 6465300648458132071, guid: 866ef42de4b0c5d49b00b254a3fe7616, type: 3}
   - {fileID: 6465300648458132071, guid: 8dc1cf86c5a1fb14b86badd03559545b, type: 3}
   - {fileID: 6465300648458132071, guid: fcf2e89352c82784289cca1a7e12201e, type: 3}
+  - {fileID: 6465300648458132071, guid: 20c7159de287fe04bbf006be5c76fb43, type: 3}
+  - {fileID: 6465300648458132071, guid: 56f63c0190deab14b89f304e99195034, type: 3}
+  - {fileID: 6465300648458132071, guid: 9deec7fb988f31648a40c57d832bd638, type: 3}
   deadEnds:
   - {fileID: 6465300648458132071, guid: 0e8dd9926c6cea140a0bb6457deca013, type: 3}
   - {fileID: 6465300648458132071, guid: 31417a9755aad8147a6fc35a3272057e, type: 3}
@@ -67,6 +70,8 @@ MonoBehaviour:
   - {fileID: 6465300648458132071, guid: b8fdc0c80b2307d448bb87d2244df232, type: 3}
   - {fileID: 6465300648458132071, guid: 1634a60eddc7a8340af069535606ccb8, type: 3}
   - {fileID: 1769772509658635451, guid: 9396d8dc99b378a43a0aa229376ca64d, type: 3}
+  - {fileID: 6465300648458132071, guid: f67e77389a85b0340b79106afac77734, type: 3}
+  - {fileID: 6465300648458132071, guid: 1b2ec4894d3b5124cb0c3f0cdc6ce659, type: 3}
   endFloor: {fileID: 6465300648458132071, guid: 5bfefea2d65f091419aef0493d2bdf80, type: 3}
   currentFloor: 0
   complexity: 0

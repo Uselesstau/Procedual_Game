@@ -22,11 +22,9 @@ public class ButtonOpenDoor : MonoBehaviour
 	    }
         if (generateNextFloor)
         {
-			for (int i = 0; i < Grid.grid.Count - 2; i++)
-			{
-				Grid.grid.RemoveAt(i);
-			}
-
+			Grid.grid.Clear();
+			Grid.grid.AddRange(Grid.elevatorGrid);
+			Grid.elevatorGrid.Clear();
 			Grid.usedDoors.Clear();
 			Instantiate(roomSpawner, orientation.transform.position, orientation.transform.rotation);
         }

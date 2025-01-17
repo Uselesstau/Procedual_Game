@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
@@ -39,33 +40,69 @@ public class PlayerScript : MonoBehaviour
 	public AudioClip flashLightOn;
 	public AudioClip flashLightOff;
 	public GameObject gunShot;
-    public GameObject muzzle;
-	public GameObject frontsight;
-	public Animation muzzleFlash;
-	public GameObject bullet;
-	public Light FlashLight;
-    public Animator weaponAnimator;
-	public Animator magazine;
-	public Animator Arm;
 	public bool isLight;
-    private bool _aiming;
-	public int totalBullets;
-	public int bulletsInMag;
+	private bool _aiming;
 	private bool _canShoot = true;
 	private bool _canReload = true;
 	private bool _canAim = true;
-	private float _reloadingTime;
+	public float reloadingTime;
 	private float _recoilTime;
 	private float _camFOV = 90;
 	public float flashLightBattery = 100;
-	private readonly float _rateOfFire = 0.1f;
+	private float _rateOfFire = 0.1f;
 	private float _shootCooldown;
 	private float _firstShotAngleY;
 	private float _firstShotAngleX;
+	private bool _isRifle;
+	private bool _isShotgun;
+	private bool _isPistol;
+	public List<int> weapons;
+	private int _selectedIndex;
+
+	[Header("Rifle")]
+	public GameObject rifle;
+    public GameObject muzzleR;
+	public GameObject frontSightR;
+	public Animation muzzleFlashR;
+	public GameObject bulletR;
+	public Light flashLightR;
+    public Animator weaponAnimatorR;
+	public Animator magazineR;
+	public Animator armR;
+	public int totalBulletsR;
+	public int bulletsInMagR;
+	
+	[Header("ShotGun")]
+	public GameObject shotgun;
+	public GameObject muzzleS;
+	public GameObject frontSightS;
+	public Animation muzzleFlashS;
+	public GameObject bulletS;
+	public Light flashLightS;
+	public Animator weaponAnimatorS;
+	public Animator armS;
+	public int totalBulletsS;
+	public int bulletsInMagS;
+	
+	[Header("Pistol")]
+	public GameObject pistol;
+	public GameObject muzzleP;
+	public GameObject frontSightP;
+	public Animation muzzleFlashP;
+	public GameObject bulletP;
+	public Light flashLightP;
+	public Animator weaponAnimatorP;
+	public Animator magazineP;
+	public Animator armP;
+	public int totalBulletsP;
+	public int bulletsInMagP;
 	void Start()
     {
         oxygenLeft = maxOxygen;
         _currentRate = lossRateMax;
+        weapons.Add(0);
+        weapons.Add(1);
+        weapons.Add(2);
     }
 	private void FixedUpdate()
 	{
@@ -88,7 +125,18 @@ public class PlayerScript : MonoBehaviour
         oxygenMeter.transform.localScale = new Vector3(1, oxygenLeft / maxOxygen, 1);
 		batteryMeter.transform.localScale = new Vector3(1, flashLightBattery / 100, 1);
 		nightVisionMeter.transform.localScale = new Vector3(1, nightVisionPercent / 100, 1);
-		bulletCount.text = bulletsInMag + " / " + totalBullets;
+		if (_isRifle)
+		{
+			bulletCount.text = bulletsInMagR + " / " + totalBulletsR;
+		}
+		if (_isShotgun)
+		{
+			bulletCount.text = bulletsInMagS + " / " + totalBulletsS;
+		}
+		if (_isPistol)
+		{
+			bulletCount.text = bulletsInMagP + " / " + totalBulletsP;
+		}
 		flashLightBattery = Mathf.Clamp(flashLightBattery,0,100);
 		oxygenLeft = Mathf.Clamp(oxygenLeft, 0, maxOxygen);
         int randomTick = Random.Range(0, lossChance);
@@ -124,11 +172,33 @@ public class PlayerScript : MonoBehaviour
 		if (isLight && flashLightBattery > 0)
 		{
 			flashLightBattery -= Time.deltaTime * 0.8f;
-			FlashLight.enabled = true;
+			if (_isRifle)
+			{
+				flashLightR.enabled = true;
+			}
+			if (_isShotgun)
+			{
+				flashLightS.enabled = true;
+			}
+			if (_isPistol)
+			{
+				flashLightP.enabled = true;
+			}
 		}
 		else
 		{
-			FlashLight.enabled = false;
+			if (_isRifle)
+			{
+				flashLightR.enabled = false;
+			}
+			if (_isShotgun)
+			{
+				flashLightS.enabled = false;
+			}
+			if (_isPistol)
+			{
+				flashLightP.enabled = false;
+			}
 		}
 		
 		Items();
@@ -167,114 +237,322 @@ public class PlayerScript : MonoBehaviour
     {
 		if (Input.GetMouseButton(1) && _canAim)
 		{
-			weaponAnimator.SetBool("isAiming", true);
-			if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleEndAiming"))
+			if (_isRifle)
 			{
-				weaponAnimator.Play("RifleStartAim", 0, 1 - weaponAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				weaponAnimatorR.SetBool("isAiming", true);
+				if (weaponAnimatorR.GetCurrentAnimatorStateInfo(0).IsName("RifleEndAiming"))
+				{
+					weaponAnimatorR.Play("RifleStartAim", 0, 1 - weaponAnimatorR.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
+			}
+			
+			if (_isShotgun)
+			{
+				weaponAnimatorS.SetBool("isAiming", true);
+				if (weaponAnimatorS.GetCurrentAnimatorStateInfo(0).IsName("AimingStop_ShotGun"))
+				{
+					weaponAnimatorS.Play("AimStart_ShotGun", 0, 1 - weaponAnimatorS.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
+			}
+
+			if (_isPistol)
+			{
+				weaponAnimatorP.SetBool("isAiming", true);
+				if (weaponAnimatorP.GetCurrentAnimatorStateInfo(0).IsName("AimingStop_Pistol"))
+				{
+					weaponAnimatorP.Play("AimStart_Pistol", 0, 1 - weaponAnimatorP.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
 			}
 			_canReload = false;
 			_camFOV -= Time.deltaTime * 90;
 		}
 		else
 		{
-			weaponAnimator.SetBool("isAiming", false);
-			if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleStartAim"))
+			if (_isRifle)
 			{
-				weaponAnimator.Play("RifleEndAiming", 0, 1 - weaponAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				weaponAnimatorR.SetBool("isAiming", false);
+				if (weaponAnimatorR.GetCurrentAnimatorStateInfo(0).IsName("RifleStartAim"))
+				{
+					weaponAnimatorR.Play("RifleEndAiming", 0, 1 - weaponAnimatorR.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
+			}
+
+			if (_isShotgun)
+			{
+				weaponAnimatorS.SetBool("isAiming", false);
+				if (weaponAnimatorS.GetCurrentAnimatorStateInfo(0).IsName("AimStart_ShotGun"))
+				{
+					weaponAnimatorS.Play("AimingStop_ShotGun", 0, 1 - weaponAnimatorS.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
+			}
+			
+			if (_isPistol)
+			{
+				weaponAnimatorP.SetBool("isAiming", false);
+				if (weaponAnimatorP.GetCurrentAnimatorStateInfo(0).IsName("AimStart_Pistol"))
+				{
+					weaponAnimatorP.Play("AimingStop_Pistol", 0, 1 - weaponAnimatorP.GetCurrentAnimatorStateInfo(0).normalizedTime);
+				}
 			}
 			_camFOV += Time.deltaTime * 90;
 		}
 
-		if (weaponAnimator.GetCurrentAnimatorStateInfo(0).IsName("RifleIdle"))
+		if (_isRifle && weaponAnimatorR.GetCurrentAnimatorStateInfo(0).IsName("RifleIdle"))
+		{
+			_canReload = true;
+		}
+		if (_isShotgun && weaponAnimatorS.GetCurrentAnimatorStateInfo(0).IsName("Idle_ShotGun"))
+		{
+			_canReload = true;
+		}
+		if (_isPistol && weaponAnimatorP.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pistol"))
 		{
 			_canReload = true;
 		}
 	}
 	void Gun()
 	{
-		_shootCooldown -= Time.deltaTime;
-		if (Input.GetMouseButtonDown(0) && _canShoot && _shootCooldown <= 0)
+		//Limit the index
+		if (_selectedIndex <= -1)
 		{
-			_firstShotAngleY = Camera.main.GetComponent<PlayerCamera>().rotation.y;
-			_firstShotAngleX = Camera.main.GetComponent<PlayerCamera>().rotation.x;
+			_selectedIndex = weapons.Count - 1;
 		}
-		if (Input.GetMouseButton(0) && _canShoot && _shootCooldown <= 0)
+		if (_selectedIndex > weapons.Count - 1)
+		{
+			_selectedIndex = 0;
+		}
+
+		//Swap weapons
+		if (weapons[_selectedIndex] == 0)
+		{
+			_isRifle = false;
+			_isPistol = true;
+			_isShotgun = false;
+		}
+		if (weapons[_selectedIndex] == 1)
+		{
+			_isRifle = true;
+			_isPistol = false;
+			_isShotgun = false;
+		}
+		if (weapons[_selectedIndex] == 2)
+		{
+			_isRifle = false;
+			_isPistol = false;
+			_isShotgun = true;
+		}
+		
+		//Check Properties of the weapon
+		if (_isRifle)
+		{
+			rifle.gameObject.SetActive(true);
+			pistol.gameObject.SetActive(false);
+			shotgun.gameObject.SetActive(false);
+			_rateOfFire = 0.1f;
+		}
+		if (_isShotgun)
+		{
+			rifle.gameObject.SetActive(false);
+			pistol.gameObject.SetActive(false);
+			shotgun.gameObject.SetActive(true);
+			_rateOfFire = 1f;
+			if (_shootCooldown <= 0)
+			{
+				weaponAnimatorS.SetBool("shot", false);
+				armS.SetBool("shot", false);
+			}
+		}
+		if (_isPistol)
+		{
+			rifle.gameObject.SetActive(false);
+			pistol.gameObject.SetActive(true);
+			shotgun.gameObject.SetActive(false);
+			_rateOfFire = 0.2f;
+			if (_shootCooldown <= 0)
+			{
+				weaponAnimatorP.SetBool("shot", false);
+			}
+		}
+		_shootCooldown -= Time.deltaTime;
+
+		//Scroll to change weapons
+		if (_canShoot && _shootCooldown <= 0 && Input.mouseScrollDelta.y > 0)
+		{
+			_selectedIndex++;
+		}
+		if (_canShoot && _shootCooldown <= 0 && Input.mouseScrollDelta.y < 0)
+		{
+			_selectedIndex--;
+		}
+		
+		//Shooting Logic
+		if (Input.GetMouseButton(0) && _canShoot && _shootCooldown <= 0 && _isRifle)
 		{
 			_shootCooldown = _rateOfFire;
-			if (bulletsInMag == 0)
+			if (bulletsInMagR == 0)
 			{
 				//Play audio
-			}
-			else
-			{
-				Instantiate(gunShot, muzzle.transform);
-				GameObject b = Instantiate(bullet, frontsight.transform.position, muzzle.transform.rotation);
-				b.GetComponent<bulletScript>().isplayers = true;
-				b.GetComponent<bulletScript>().shooter = GameObject.Find("PlayerObj");
-				Recoil();
-				muzzleFlash.Play();
-				bulletsInMag--;
-			}
-		}
-		if (_recoilTime > 0 && (!Input.GetMouseButton(0) || bulletsInMag == 0))
-		{
-			if (Camera.main.GetComponent<PlayerCamera>().rotation.y - _firstShotAngleY <= 0.1f)
-			{
-				_recoilTime = 0;
 				return;
 			}
-			Camera.main.GetComponent<PlayerCamera>().rotation.y -= (Camera.main.GetComponent<PlayerCamera>().rotation.y - _firstShotAngleY) * Time.deltaTime * 5;
-			Camera.main.GetComponent<PlayerCamera>().rotation.x -= (Camera.main.GetComponent<PlayerCamera>().rotation.x - _firstShotAngleX) * Time.deltaTime * 5;
-			_recoilTime -= 2 * Time.deltaTime;
+			Instantiate(gunShot, muzzleR.transform);
+			GameObject b = Instantiate(bulletR, frontSightR.transform.position, muzzleR.transform.rotation);
+			b.GetComponent<bulletScript>().isplayers = true;
+			b.GetComponent<bulletScript>().shooter = GameObject.Find("PlayerObj");
+			Recoil();
+			muzzleFlashR.Play();
+			bulletsInMagR--;
 		}
+		
+		if (Input.GetMouseButtonDown(0) && _canShoot && _shootCooldown <= 0 && _isShotgun)
+		{
+			_shootCooldown = _rateOfFire;
+			if (bulletsInMagS == 0)
+			{
+				//Play audio
+				return;
+			}
+			weaponAnimatorS.SetBool("shot", true);
+			armS.SetBool("shot", true);
+			Instantiate(gunShot, muzzleS.transform);
+			for (int i = 0; i < 20; i++)
+			{
+				GameObject b = Instantiate(bulletS, frontSightS.transform.position, muzzleS.transform.rotation);
+				b.GetComponent<bulletScript>().isplayers = true;
+				b.GetComponent<bulletScript>().shooter = GameObject.Find("PlayerObj");
+				b.transform.eulerAngles += new Vector3(Random.Range(-5,5), Random.Range(-5,5), 0);
+			}
+			Recoil();
+			muzzleFlashS.Play();
+			bulletsInMagS--;
+		}
+
+		if (Input.GetMouseButtonDown(0) && _canShoot && _shootCooldown <= 0 && _isPistol)
+		{
+			_shootCooldown = _rateOfFire;
+			if (bulletsInMagP == 0)
+			{
+				//Play audio
+				return;
+			}
+			weaponAnimatorP.SetBool("shot", true);
+			Instantiate(gunShot, muzzleP.transform);
+			GameObject b = Instantiate(bulletP, frontSightP.transform.position, muzzleP.transform.rotation);
+			b.GetComponent<bulletScript>().isplayers = true;
+			b.GetComponent<bulletScript>().shooter = GameObject.Find("PlayerObj");
+			Recoil();
+			muzzleFlashP.Play();
+			bulletsInMagP--;
+		}
+		
+		//Reload Logic
 		if (Input.GetKeyDown(KeyCode.R) && _canReload)
 		{
-			_reloadingTime = 3;
+			if (_isRifle)
+			{
+				reloadingTime = 3;
+			}
+			if (_isShotgun)
+			{
+				if (bulletsInMagS == 5 || totalBulletsS == 0)
+				{
+					return;
+				}
+				reloadingTime = 999;
+			}
+			if (_isPistol)
+			{
+				reloadingTime = 1;
+			}
 			_canShoot = false;
 			_canReload = false;
 			_canAim = false;
-			magazine.SetBool("reload", true);
-			Arm.SetBool("reload", true);
+			
+			if (_isRifle)
+			{
+				magazineR.SetBool("reload", true);
+				armR.SetBool("reload", true);
+			}
+
+			if (_isShotgun)
+			{
+				armS.SetBool("reload", true);
+				if (bulletsInMagS < 4)
+				{
+					armS.SetBool("multipleReload", true);
+				}
+			}
+			if (_isPistol)
+			{
+				magazineP.SetBool("reload", true);
+				armP.SetBool("reload", true);
+			}
 		}
-		if (_reloadingTime > 0)
+
+		//Shotgun reload animation logic
+		if (Input.GetMouseButtonDown(0) && _isShotgun && !_canReload)
 		{
-			_reloadingTime -= Time.deltaTime;
+			armS.SetBool("multipleReload", false);
 		}
-		if (_reloadingTime < 0)
+
+		if (_isShotgun && armS.GetBool("multipleReload") && bulletsInMagS == 5)
 		{
-			_reloadingTime = 0;
-			magazine.SetBool("reload", false);
-			Arm.SetBool("reload", false);
+			armS.SetBool("reload", false);
+			armS.SetBool("multipleReload", false);
+		}
+		
+		//General reload logic
+		if (reloadingTime > 0)
+		{
+			reloadingTime -= Time.deltaTime;
+		}
+		if (reloadingTime < 0)
+		{
+			reloadingTime = 0;
+			if (_isRifle)
+			{
+				magazineR.SetBool("reload", false);
+				armR.SetBool("reload", false);
+			}
+			if (_isPistol)
+			{
+				magazineP.SetBool("reload", false);
+				armP.SetBool("reload", false);
+			}
 			_canShoot = true;
 			_canAim = true;
 			_canReload = true;
-
-			if (totalBullets >= 30 - bulletsInMag)
+			
+			//Reload if Rifle
+			if (totalBulletsR >= 30 - bulletsInMagR && _isRifle)
 			{
-				totalBullets -= 30 - bulletsInMag;
-				bulletsInMag += 30 - bulletsInMag;
+				totalBulletsR -= 30 - bulletsInMagR;
+				bulletsInMagR += 30 - bulletsInMagR;
 			}
-			else
+			if (totalBulletsR < 30 - bulletsInMagR && _isRifle)
 			{
-				bulletsInMag += totalBullets;
-				totalBullets = 0;
+				bulletsInMagR += totalBulletsR;
+				totalBulletsR = 0;
+			}
+			//Reload if pistol
+			if (totalBulletsP >= 8 - bulletsInMagP && _isPistol)
+			{
+				totalBulletsP -= 8 - bulletsInMagP;
+				bulletsInMagP += 8 - bulletsInMagP;
+			}
+			if (totalBulletsP < 8 - bulletsInMagP && _isPistol)
+			{
+				bulletsInMagP += totalBulletsP;
+				totalBulletsP = 0;
 			}
 		}
 	}
+	
 	void Recoil()
 	{
-		Vector3 currentMousePos = Input.mousePosition;
-		currentMousePos.z = 10;
-		Vector3 mouseDelta = Camera.main.ScreenToWorldPoint(currentMousePos) - lastMousePos;
-		lastMousePos = Camera.main.ScreenToWorldPoint(currentMousePos);
-		if (mouseDelta.magnitude > 0.05f)
-		{
-			_recoilTime = 0;
-		}
+		float multiplier = _isRifle ? 1.5f : _isShotgun ? 10f : 3f;
 		float rand = Random.Range(0.5f, 1.4f);
-		Camera.main.transform.GetComponent<PlayerCamera>().rotation.y += rand;
-		Camera.main.transform.GetComponent<PlayerCamera>().rotation.x += rand * Random.Range(-0.2f, 0.67f);
-		_recoilTime += rand;
+		Camera.main.transform.GetComponent<PlayerCamera>().rotation.y += rand * multiplier;
+		Camera.main.transform.GetComponent<PlayerCamera>().rotation.x += rand * multiplier * Random.Range(-0.2f, 0.67f);
 	}
 	void Items()
 	{
@@ -284,7 +562,9 @@ public class PlayerScript : MonoBehaviour
 		{
 			ItemEffect item = hit.collider.GetComponent<ItemEffect>();
 			flashLightBattery += item.battery;
-			totalBullets += item.bullets;
+			totalBulletsR += item.bulletsR;
+			totalBulletsP += item.bulletsP;
+			totalBulletsS += item.bulletsS;
 			oxygenLeft += item.oxygen;
 			nightVisionPercent += item.nVBattery;
 			if (item.keyCode != 0)
@@ -300,13 +580,37 @@ public class PlayerScript : MonoBehaviour
 				}
 				inventory.Add(flareItem);
 			}
-			if (item.isFlashBang && inventory.Count < 3)
+			
+			if (item.isFlashBang)
 			{
 				if (inventory.Count == 3)
 				{
 					return;
 				}
 				inventory.Add(flashBangItem);
+			}
+
+			if (item.isRifle)
+			{
+				if (weapons.Contains(1))
+				{
+					totalBulletsR += 30;
+				}
+				else
+				{
+					weapons.Add(1);
+				}
+			}
+			if (item.isShotgun)
+			{
+				if (weapons.Contains(2))
+				{
+					totalBulletsR += 5;
+				}
+				else
+				{
+					weapons.Add(2);
+				}
 			}
 			
 			Destroy(hit.collider.gameObject);
