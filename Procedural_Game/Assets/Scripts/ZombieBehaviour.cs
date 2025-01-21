@@ -3,49 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Automaton_Behaviour : MonoBehaviour
+public class ZombieBehaviour : MonoBehaviour
 {
 	private GameObject _player;
 	private NavMeshAgent _agent;
-
-	public GameObject gunShot;
-	public GameObject bullet;
-	public Animation muzzleFlash;
-	private float _rof = 0.5f;
-	private float _coolDown;
+	private Rigidbody _rb;
+    	
+	public float hp = 3;
 	public float stunTime;
-
-	public float hp = 5;
+	private bool _isDead;
+    	
+    
 	private void Start()
 	{
 		_player = GameObject.Find("Player");
 		_agent = GetComponent<NavMeshAgent>();
+		_rb = GetComponent<Rigidbody>();
 	}
 	void Update()
 	{
+		if (_isDead) return;
+    		
 		if (hp <= 0)
 		{
 			_agent.ResetPath();
-			Destroy(gameObject);
+			StartCoroutine(Stun());
+			_isDead = true;
+			return;
 		}
-		_coolDown -= Time.deltaTime;
+    
 		if (stunTime > 0)
 		{
 			stunTime -= Time.deltaTime;
 			return;
 		}
+    		
 		RaycastHit hit;
 		bool playerInView = Physics.Raycast(transform.position, _player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.name == "PlayerObj";
 		if (playerInView)
 		{
-			if (_coolDown < 0)
-			{
-				_coolDown = _rof;
-				GameObject b = Instantiate(bullet, transform.position, transform.rotation);
-				b.GetComponent<bulletScript>().shooter = gameObject;
-				Instantiate(gunShot, transform);
-				muzzleFlash.Play();
-			}
 			transform.LookAt(new Vector3(_player.transform.position.x, transform.position.y, _player.transform.position.z));
 			MeshRenderer[] a = GetComponentsInChildren<MeshRenderer>();
 			foreach (MeshRenderer b in a)
@@ -62,5 +58,37 @@ public class Automaton_Behaviour : MonoBehaviour
 				_agent.SetDestination(navhit.position);
 			}
 		}
+	}
+    
+	IEnumerator Stun()
+	{
+		RagDoll();
+		float deadTime = 15;
+		while (deadTime > 0)
+		{
+			deadTime -= Time.deltaTime;
+			yield return null;
+		}
+		Revive();
+	}
+    
+	void RagDoll()
+	{
+		_agent.isStopped = true;
+		_agent.enabled = false;
+		_rb.isKinematic = false;
+		_rb.velocity = transform.TransformDirection(Vector3.forward) * (10 * -1);
+		GetComponentInChildren<WalkingAudio_Cs>().automated = false;
+	}
+    
+	void Revive()
+	{
+		transform.LookAt(new Vector3(_player.transform.position.x, transform.position.y, _player.transform.position.z));
+		_agent.enabled = true;
+		_agent.isStopped = false;
+		_rb.isKinematic = true;
+		hp = 6;
+		_isDead = false;
+		GetComponentInChildren<WalkingAudio_Cs>().automated = true;
 	}
 }

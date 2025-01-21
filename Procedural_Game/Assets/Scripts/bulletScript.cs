@@ -21,6 +21,10 @@ public class bulletScript : MonoBehaviour
 			Physics.IgnoreCollision(GetComponent<SphereCollider>(), shooter.GetComponent<CapsuleCollider>());
 		}
 		Physics.IgnoreLayerCollision(9, 9);
+		if (isplayers)
+		{
+			Physics.IgnoreLayerCollision(9, 3);
+		}
 	}
 
 	void Update()
@@ -33,6 +37,7 @@ public class bulletScript : MonoBehaviour
 		{
 			return;
 		}
+		Debug.Log(collision.gameObject.name);
 		if (collision.gameObject.CompareTag("Enemy") && isplayers)
 		{
 			if (collision.gameObject.GetComponent<EyesBehaviour>() != null)
@@ -46,6 +51,10 @@ public class bulletScript : MonoBehaviour
 			if (collision.gameObject.GetComponentInParent<Bug_Cs>() != null)
 			{
 				collision.gameObject.GetComponentInParent<Bug_Cs>().hp -= damage;
+			}
+			if (collision.gameObject.GetComponentInParent<ZombieBehaviour>() != null)
+			{
+				collision.gameObject.GetComponentInParent<ZombieBehaviour>().hp -= damage;
 			}
 			Destroy(gameObject);
 			return;

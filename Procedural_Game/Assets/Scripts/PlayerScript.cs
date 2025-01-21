@@ -12,6 +12,9 @@ using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
 {
+	private Camera _playerCamera;
+	private PlayerController _playerController;
+	
 	[Header("HUD")]
 	public GameObject canGrabIcon;
 	public GameObject batteryMeter;
@@ -33,6 +36,7 @@ public class PlayerScript : MonoBehaviour
     [Header("Items")] 
     public List<int> keyCards;
     public GameObject flareItem;
+    public GameObject flareUVItem;
     public GameObject flashBangItem;
     public List<GameObject> inventory;
 
@@ -50,7 +54,7 @@ public class PlayerScript : MonoBehaviour
 	private float _camFOV = 90;
 	public float flashLightBattery = 100;
 	private float _rateOfFire = 0.1f;
-	private float _shootCooldown;
+	public float shootCooldown;
 	private float _firstShotAngleY;
 	private float _firstShotAngleX;
 	private bool _isRifle;
@@ -94,21 +98,23 @@ public class PlayerScript : MonoBehaviour
 	public Animator weaponAnimatorP;
 	public Animator magazineP;
 	public Animator armP;
+	public GameObject handP;
+	private GameObject _heldItem;
 	public int totalBulletsP;
 	public int bulletsInMagP;
 	void Start()
     {
+	    _playerCamera = Camera.main;
+	    _playerController = GetComponent<PlayerController>();
         oxygenLeft = maxOxygen;
         _currentRate = lossRateMax;
         weapons.Add(0);
-        weapons.Add(1);
-        weapons.Add(2);
     }
 	private void FixedUpdate()
 	{
 		int layerMask = 1 << LayerMask.NameToLayer("Items");
 		int layerMask2 = 1 << LayerMask.NameToLayer("Buttons");
-		if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), 1.5f, layerMask) || Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), 1.5f, layerMask2))
+		if (Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.TransformDirection(Vector3.forward), 1.5f, layerMask) || Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.TransformDirection(Vector3.forward), 1.5f, layerMask2))
 		{
 			canGrabIcon.SetActive(true);
 		}
@@ -120,8 +126,8 @@ public class PlayerScript : MonoBehaviour
 	void Update()
     {
         _camFOV = Mathf.Clamp(_camFOV, 45, 90);
-		Camera.main.fieldOfView = _camFOV;
-        _currentRate -= Time.deltaTime * GetComponent<PlayerController>().Speed;
+		_playerCamera.fieldOfView = _camFOV;
+        _currentRate -= Time.deltaTime * _playerController.Speed;
         oxygenMeter.transform.localScale = new Vector3(1, oxygenLeft / maxOxygen, 1);
 		batteryMeter.transform.localScale = new Vector3(1, flashLightBattery / 100, 1);
 		nightVisionMeter.transform.localScale = new Vector3(1, nightVisionPercent / 100, 1);
@@ -211,15 +217,16 @@ public class PlayerScript : MonoBehaviour
 	void NightVision()
 	{
 		nightVisionPercent = Mathf.Clamp(nightVisionPercent, 0, 100);
-		ColorGrading cg = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
-		Grain grain = Camera.main.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
+		ColorGrading cg = _playerCamera.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
+		Grain grain = _playerCamera.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<Grain>();
+		
 		if (nightVisionPercent <= 0)
 		{
 			GetComponent<Light>().enabled = false;
 			cg.active = false;
 			grain.active = false;
-			return;
 		}
+		
 		if (Input.GetKeyDown(KeyCode.T) && nightVisionPercent > 0)
 		{
 			GetComponent<Light>().enabled = !GetComponent<Light>().enabled;
@@ -230,6 +237,11 @@ public class PlayerScript : MonoBehaviour
 		if (cg.active)
 		{
 			nightVisionPercent -= Time.deltaTime * 5f;
+			_playerCamera.cullingMask = LayerMask.GetMask("Default", "Ignore Raycast", "Water", "UI", "Items", "Buttons", "Bullet", "UV");
+		}
+		else
+		{
+			_playerCamera.cullingMask = LayerMask.GetMask("Default", "Ignore Raycast", "Water", "UI", "Items", "Buttons", "Bullet");
 		}
 	}
 
@@ -356,7 +368,7 @@ public class PlayerScript : MonoBehaviour
 			pistol.gameObject.SetActive(false);
 			shotgun.gameObject.SetActive(true);
 			_rateOfFire = 1f;
-			if (_shootCooldown <= 0)
+			if (shootCooldown <= 0)
 			{
 				weaponAnimatorS.SetBool("shot", false);
 				armS.SetBool("shot", false);
@@ -368,27 +380,27 @@ public class PlayerScript : MonoBehaviour
 			pistol.gameObject.SetActive(true);
 			shotgun.gameObject.SetActive(false);
 			_rateOfFire = 0.2f;
-			if (_shootCooldown <= 0)
+			if (shootCooldown <= 0)
 			{
 				weaponAnimatorP.SetBool("shot", false);
 			}
 		}
-		_shootCooldown -= Time.deltaTime;
+		shootCooldown -= Time.deltaTime;
 
 		//Scroll to change weapons
-		if (_canShoot && _shootCooldown <= 0 && Input.mouseScrollDelta.y > 0)
+		if (_canShoot && shootCooldown <= 0 && Input.mouseScrollDelta.y > 0 && _heldItem == null)
 		{
 			_selectedIndex++;
 		}
-		if (_canShoot && _shootCooldown <= 0 && Input.mouseScrollDelta.y < 0)
+		if (_canShoot && shootCooldown <= 0 && Input.mouseScrollDelta.y < 0 && _heldItem == null)
 		{
 			_selectedIndex--;
 		}
 		
 		//Shooting Logic
-		if (Input.GetMouseButton(0) && _canShoot && _shootCooldown <= 0 && _isRifle)
+		if (Input.GetMouseButton(0) && _canShoot && shootCooldown <= 0 && _isRifle)
 		{
-			_shootCooldown = _rateOfFire;
+			shootCooldown = _rateOfFire;
 			if (bulletsInMagR == 0)
 			{
 				//Play audio
@@ -403,9 +415,9 @@ public class PlayerScript : MonoBehaviour
 			bulletsInMagR--;
 		}
 		
-		if (Input.GetMouseButtonDown(0) && _canShoot && _shootCooldown <= 0 && _isShotgun)
+		if (Input.GetMouseButtonDown(0) && _canShoot && shootCooldown <= 0 && _isShotgun)
 		{
-			_shootCooldown = _rateOfFire;
+			shootCooldown = _rateOfFire;
 			if (bulletsInMagS == 0)
 			{
 				//Play audio
@@ -426,9 +438,9 @@ public class PlayerScript : MonoBehaviour
 			bulletsInMagS--;
 		}
 
-		if (Input.GetMouseButtonDown(0) && _canShoot && _shootCooldown <= 0 && _isPistol)
+		if (Input.GetMouseButtonDown(0) && _canShoot && shootCooldown <= 0 && _isPistol)
 		{
-			_shootCooldown = _rateOfFire;
+			shootCooldown = _rateOfFire;
 			if (bulletsInMagP == 0)
 			{
 				//Play audio
@@ -445,7 +457,7 @@ public class PlayerScript : MonoBehaviour
 		}
 		
 		//Reload Logic
-		if (Input.GetKeyDown(KeyCode.R) && _canReload)
+		if (Input.GetKeyDown(KeyCode.R) && _canReload && _heldItem == null)
 		{
 			if (_isRifle)
 			{
@@ -551,14 +563,15 @@ public class PlayerScript : MonoBehaviour
 	{
 		float multiplier = _isRifle ? 1.5f : _isShotgun ? 10f : 3f;
 		float rand = Random.Range(0.5f, 1.4f);
-		Camera.main.transform.GetComponent<PlayerCamera>().rotation.y += rand * multiplier;
-		Camera.main.transform.GetComponent<PlayerCamera>().rotation.x += rand * multiplier * Random.Range(-0.2f, 0.67f);
+		_playerCamera.transform.GetComponent<PlayerCamera>().rotation.y += rand * multiplier;
+		_playerCamera.transform.GetComponent<PlayerCamera>().rotation.x += rand * multiplier * Random.Range(-0.2f, 0.67f);
 	}
+	// ReSharper disable Unity.PerformanceAnalysis
 	void Items()
 	{
 		RaycastHit hit;
 		int layerMask = 1 << LayerMask.NameToLayer("Items");
-		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
+		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
 		{
 			ItemEffect item = hit.collider.GetComponent<ItemEffect>();
 			flashLightBattery += item.battery;
@@ -574,16 +587,25 @@ public class PlayerScript : MonoBehaviour
 
 			if (item.isFlare)
 			{
-				if (inventory.Count == 3)
+				if (inventory.Count == 5)
 				{
 					return;
 				}
 				inventory.Add(flareItem);
 			}
 			
+			if (item.isUVFlare)
+			{
+				if (inventory.Count == 5)
+				{
+					return;
+				}
+				inventory.Add(flareUVItem);
+			}
+			
 			if (item.isFlashBang)
 			{
-				if (inventory.Count == 3)
+				if (inventory.Count == 5)
 				{
 					return;
 				}
@@ -615,19 +637,48 @@ public class PlayerScript : MonoBehaviour
 			
 			Destroy(hit.collider.gameObject);
 		}
-
-		if (Input.GetKeyDown(KeyCode.G) && inventory.Count > 0)
+		
+		if (Input.GetKeyDown(KeyCode.G) && _isPistol && _canAim && _canReload && inventory.Count > 0 && inventory[0].GetComponent<FlareItem>() != null)
 		{
-			GameObject item = Instantiate(inventory[0], transform.position + Camera.main.transform.forward, Quaternion.identity);
-			item.GetComponent<Rigidbody>().velocity = Camera.main.transform.forward * 10;
+			GameObject flare = Instantiate(inventory[0], handP.transform.position, handP.transform.rotation);
+			flare.transform.SetParent(handP.transform);
+			flare.GetComponent<Rigidbody>().isKinematic = true;
+			_heldItem = flare;
+			armP.SetBool("flare", true);
+			inventory.Remove(inventory[0]);
+			_canReload = false;
+			_canAim = false;
+			return;
+		}
+		
+		if (Input.GetKeyDown(KeyCode.G) && inventory.Count > 0 && _heldItem == null)
+		{
+			GameObject item = Instantiate(inventory[0], transform.position + _playerCamera.transform.forward, Quaternion.identity);
+			item.GetComponent<Rigidbody>().velocity = _playerCamera.transform.forward * 10;
 			inventory.Remove(inventory[0]);
 		}
+
+		if (Input.GetKeyDown(KeyCode.G) && _heldItem != null)
+		{
+			_heldItem.transform.SetParent(null);
+			_heldItem.GetComponent<Rigidbody>().isKinematic = false;
+			_heldItem.GetComponent<Rigidbody>().velocity = _playerCamera.transform.forward * 10;
+			_heldItem = null;
+		}
+
+		if (armP.GetBool("flare") && _heldItem == null)
+		{
+			armP.SetBool("flare", false);
+			_canReload = true;
+			_canAim = true;
+		}
 	}
+	// ReSharper disable Unity.PerformanceAnalysis
 	void Buttons()
 	{
 		RaycastHit hit;
 		int layerMask = 1 << LayerMask.NameToLayer("Buttons");
-		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
+		if (Input.GetKeyDown(KeyCode.E) && Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.TransformDirection(Vector3.forward), out hit, 1.5f, layerMask))
 		{
 			GameObject button = hit.collider.gameObject;
 			if (button.GetComponent<ButtonOpenDoor>() != null)

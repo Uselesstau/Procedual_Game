@@ -2,31 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.XR;
+using Debug = System.Diagnostics.Debug;
 
 public class EyesBehaviour : MonoBehaviour
 {
-    public GameObject player;
-	public GameObject playerObj;
-    public float speed;
+	private NavMeshAgent _agent;
+	private CapsuleCollider _collider;
+	
+    private GameObject _player;
+	private GameObject _playerObj;
+	private ColorGrading _cg;
+	private Camera _camera;
+	
+    private float _baseSpeed = 3;
+    private float _maxSpeed = 10;
+    
 	public float runAway;
-	public bool relocate;
+	private bool _relocate;
 	private void Start()
 	{
-        player = GameObject.Find("Player");
-		playerObj = GameObject.Find("PlayerObj");
+		_camera = Camera.main;
+		_cg = _camera.gameObject.GetComponent<PostProcessVolume>().profile.GetSetting<ColorGrading>();
+		_collider = GetComponent<CapsuleCollider>();
+		_agent = GetComponent<NavMeshAgent>();
+        _player = GameObject.Find("Player");
+		_playerObj = GameObject.Find("PlayerObj");
 	}
 	void Update()
     {
         RaycastHit hit;
-		Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
-        transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
-		float dist = Vector3.Distance(transform.position, player.transform.position);
+		Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
+        transform.LookAt(new Vector3(_player.transform.position.x, transform.position.y, _player.transform.position.z));
 		if (runAway == 0)
 		{
-			if (!GetComponent<CapsuleCollider>().enabled)
+			if (!_collider.enabled)
 			{
-				GetComponent<CapsuleCollider>().enabled = true;
+				_collider.enabled = true;
 				GetComponentInChildren<AudioSource>().Play();
 			}
 			MeshRenderer[] a = GetComponentsInChildren<MeshRenderer>();
@@ -34,55 +47,31 @@ public class EyesBehaviour : MonoBehaviour
 			{
 				b.enabled = true;
 			}
-			if (GeometryUtility.TestPlanesAABB(planes, gameObject.GetComponent<CapsuleCollider>().bounds) && Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))
+			if (GeometryUtility.TestPlanesAABB(planes, _collider.bounds) && Physics.Raycast(transform.position,  _player.transform.position - transform.position, out hit, Mathf.Infinity) && hit.collider.gameObject == _playerObj && _cg.active)
 			{
-				if (!relocate)
-				{
-					if (dist <= 10)
-					{
-						runAway = 5;
-					}
-					relocate = true;
-				}
-
-				if (hit.collider.gameObject == playerObj)
-				{
-					if (dist <= 15)
-					{
-						runAway = 15;
-					}
-					GetComponent<NavMeshAgent>().speed = 0;
-					GetComponent<NavMeshAgent>().SetDestination(transform.position);
-				}
-				else
-				{
-					GetComponent<NavMeshAgent>().speed = speed;
-					GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
-				}
+				_agent.speed = 0;
+				_agent.SetDestination(transform.position - new Vector3(0, _agent.height/2,0));
+				return;
 			}
-			else
-			{
-				GetComponent<NavMeshAgent>().speed = speed;
-				GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
-				relocate = false;
-			}
+			_agent.speed = _baseSpeed;
+			_agent.SetDestination(_player.transform.position);
 		}
+		
 		if (runAway > 0)
 		{
 			runAway = Mathf.Clamp(runAway -= Time.deltaTime, 0, 1000);
-			GetComponent<CapsuleCollider>().enabled = false;
+			_collider.enabled = false;
 			MeshRenderer[] a = GetComponentsInChildren<MeshRenderer>();
 			foreach (MeshRenderer b in a)
 			{
 				b.enabled = false;
 			}
-			GetComponent<NavMeshAgent>().speed = 10;
+			_agent.speed = _maxSpeed;
 			NavMeshHit navhit;
 			if (NavMesh.SamplePosition(new Vector3(Random.Range(-100, 100), transform.position.y, Random.Range(-100, 100)), out navhit, Mathf.Infinity, NavMesh.AllAreas) && runAway > 5f)
 			{
-				GetComponent<NavMeshAgent>().SetDestination(navhit.position);
+				_agent.SetDestination(navhit.position);
 			}
-
 		}
     }
 }

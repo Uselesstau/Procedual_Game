@@ -23,6 +23,8 @@ public class ItemEffect : MonoBehaviour
     public bool isNVBattery;
 
     public bool isFlare;
+    
+    public bool isUVFlare;
 
     public bool isFlashBang;
 

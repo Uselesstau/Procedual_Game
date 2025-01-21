@@ -19,8 +19,9 @@ public class KeyCard : MonoBehaviour
         keySpawners = GameObject.FindGameObjectsWithTag("KeySpawner").ToList();
         GameObject keySpawner = keySpawners[Random.Range(0, keySpawners.Count)];
         GameObject keyCard = Instantiate(keyCardPrefab, keySpawner.transform);
-        //Destroy(keySpawner);
         keyCard.GetComponent<ItemEffect>().keyCode = value;
+        keyCard.transform.SetParent(keySpawner.transform.parent);
+        Destroy(keySpawner);
     }
 
     public void CheckToOpenDoor()
@@ -29,6 +30,10 @@ public class KeyCard : MonoBehaviour
         {
             Destroy(door);
             _player.GetComponent<PlayerScript>().keyCards.Remove(value);
+        }
+        else
+        {
+            Debug.Log("Wrong key card");
         }
     }
 }

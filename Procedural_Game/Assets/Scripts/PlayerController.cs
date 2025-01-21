@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-	public float BaseSpeed = 1f;
-	public float Speed = 1f;
-	public float CrouchSpeed = 0.3f;
-	public float RunSpeed = 1.5f;
-	private bool Crouched = false;
-	private bool WantToStand = false;
-	public float JumpStrength = 1f;
+	public float BaseSpeed;
+	public float Speed;
+	public float CrouchSpeed;
+	public float RunSpeed;
+	private bool Crouched;
+	private bool WantToStand;
+	public float JumpStrength;
 
 	private bool Grounded = false;
 	public CharacterController Controller;
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 		Cursor.lockState = CursorLockMode.Locked;
 		
 		walkSoundCooldown -= Time.deltaTime;
-		if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0 && !Crouched)
+		if (Input.GetAxis("Vertical") == 0 && Input.GetAxis("Horizontal") == 0)
 		{
 			Speed = 0;
 		}
@@ -65,14 +65,20 @@ public class PlayerController : MonoBehaviour
 		Vector3 cameraRelativeMovement = forwardRelativeVerticalInput + rightRelativeVerticalInput;
 		
 		Controller.Move(cameraRelativeMovement * (Speed * Time.deltaTime));
-		//Sprinting
-		if (Input.GetKey(KeyCode.LeftShift) && Crouched == false)
+		//Sprinting speed
+		if (Input.GetKey(KeyCode.LeftShift) && !Crouched)
 		{
 			Speed = RunSpeed;
 		}
-		if (!Input.GetKey(KeyCode.LeftShift) && Crouched == false && (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0))
+		//Walking speed
+		if (!Input.GetKey(KeyCode.LeftShift) && !Crouched && (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0))
 		{
 			Speed = BaseSpeed;
+		}
+		//Crouching speed
+		if (!Input.GetKey(KeyCode.LeftShift) && Crouched && (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0))
+		{
+			Speed = CrouchSpeed;
 		}
 	}
 
@@ -103,14 +109,12 @@ public class PlayerController : MonoBehaviour
 
 		if (Input.GetKey(KeyCode.C))
 		{
-			Speed = CrouchSpeed;
 			Crouched = true;
 		}
 		if (Input.GetKeyUp(KeyCode.C))
 		{
 			if (!Physics.Raycast(roofCheckRay, 0.8f))
 			{
-				Speed = BaseSpeed;
 				Crouched = false;
 			}
 			else
@@ -120,7 +124,6 @@ public class PlayerController : MonoBehaviour
 		}
 		if (WantToStand && !Physics.Raycast(roofCheckRay, 0.8f))
 		{
-			Speed = BaseSpeed;
 			Crouched = false;
 			WantToStand = false;
 		}
@@ -142,7 +145,7 @@ public class PlayerController : MonoBehaviour
 		}
 
 		//Jumping
-		if (Input.GetKeyDown(KeyCode.Space) && Grounded == true)
+		if (Input.GetKeyDown(KeyCode.Space) && Grounded)
 		{
 			for (int i = 1; i < 30; i++)
 			{
